@@ -1,9 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import AuthLayout from '../layauts/AuthLayout.vue'
 
-import Login from '../views/authe/Login.vue'
-import ForgotPassword from '../views/authe/ForgotPassword.vue'
-import ResetPassword from '../views/authe/ResetPassword.vue'
+import Login from '../modules/auth/pages/Login.vue'
+import ForgotPassword from '../modules/auth/pages/ForgotPassword.vue'
+import ResetPassword from '../modules/auth/pages/ResetPassword.vue'
 
 const routes = [
   {
