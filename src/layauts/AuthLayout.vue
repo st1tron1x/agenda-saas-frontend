@@ -31,6 +31,7 @@
         class="d-flex align-center justify-center"
       >
         <router-view />
+        <AppFooter />
       </v-col>
 
     </v-row>
@@ -49,6 +50,6 @@
 
 <script setup>
 import { useTenant } from '../composables/useTenant'
-
+import AppFooter from '../components/AppFooter.vue'
 const { tenant } = useTenant()
 </script>

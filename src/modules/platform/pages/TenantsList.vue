@@ -63,24 +63,24 @@
 const tenants = [
   {
     id: 1,
-    name: 'Xiomy Estetic',
+    name: 'Xiomi Esthetic',
     plan: 'Pro',
     active: true,
-    logo: '/logos/xiomy.png',
+    logo: '../../public/Xiomy.png',
   },
   {
     id: 2,
     name: 'Go Studio',
-    plan: 'Basic',
+    plan: 'Pro Plus',
     active: true,
-    logo: '/logos/go.png',
+    logo: '../../public/GO STUDIO.png',
   },
   {
     id: 3,
     name: 'Agenda Demo',
     plan: 'Trial',
     active: false,
-    logo: '/logos/default.png',
+    logo: '../../public/TECH svj.png',
   },
 ]
 </script>

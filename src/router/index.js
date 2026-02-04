@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import AuthLayout from '../layauts/AuthLayout.vue'
 import PlatformLayout from '../layauts/PlatformLayout.vue'
+import DashboardLayout from '../layauts/DashboardLayout.vue'
 
 import Login from '../modules/auth/pages/Login.vue'
 import ForgotPassword from '../modules/auth/pages/ForgotPassword.vue'
@@ -22,6 +23,7 @@ const routes = [
   {
     path: '/platform',
     component: PlatformLayout,
+    meta:{role: 'SUPER_ADMIN'},
     children: [
       {
         path: '',
