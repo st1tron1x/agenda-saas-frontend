@@ -1,13 +1,15 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuth } from '../stores/auth'
+import { useAuth } from '@/stores/auth'
 import { ROLES } from '@/constants/roles'
 
-import AuthLayout from '../layauts/AuthLayout.vue'
-import PlatformLayout from '../layauts/PlatformLayout.vue'
+import AuthLayout from '@/layauts/AuthLayout.vue'
+import PlatformLayout from '@/layauts/PlatformLayout.vue'
+import AppLayout from '@/layauts/AppLayout.vue'
 
-import Login from '../modules/auth/pages/Login.vue'
-import ForgotPassword from '../modules/auth/pages/ForgotPassword.vue'
-import ResetPassword from '../modules/auth/pages/ResetPassword.vue'
+import Login from '@/modules/auth/pages/Login.vue'
+import ForgotPassword from '@/modules/auth/pages/ForgotPassword.vue'
+import ResetPassword from '@/modules/auth/pages/ResetPassword.vue'
+import TenantDashboard from '@/modules/tenant/pages/TenantDashboard.vue'
 
 const routes = [
   {
@@ -32,22 +34,33 @@ const routes = [
       {
         path: '',
         name: 'PlatformDashboard',
-        component: () => import('../modules/platform/pages/Dashboard.vue'),
+        component: () => import('@/modules/platform/pages/Dashboard.vue'),
       },
       {
         path: 'tenants',
         name: 'TenantsList',
-        component: () => import('../modules/platform/pages/TenantsList.vue'),
+        component: () => import('@/modules/platform/pages/TenantsList.vue'),
       },
       {
-        path: '/platform/tenants/create',
+        path: 'tenants/create', // ✅ SIN /
         name: 'TenantCreate',
-        component: ()=> import('@/modules/platform/pages/TenantCreate.vue'),
-        meta: {
-          requiresAuth: true,
-          role: ROLES.SUPER_ADMIN,
-        },
+        component: () => import('@/modules/platform/pages/TenantCreate.vue'),
       },
+    ],
+  },
+
+  {
+    path: '/app',
+    component: AppLayout,
+    meta: { requiresAuth: true },
+    children: [
+      {
+        path: '',
+        redirect: '/app/dashboard',
+      },
+      { path: 'dashboard', component: ()=> import('@/modules/tenant/pages/TenantDashboard.vue'),},
+      { path: 'staff', component: () => import('@/modules/tenant/pages/StaffDashboard.vue'), meta:{role:ROLES.STAFF,}},
+      { path: 'tv', component: () => import('@/modules/tenant/pages/TvDashboard.vue') },
     ],
   },
 ]

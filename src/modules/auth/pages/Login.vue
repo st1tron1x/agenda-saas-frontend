@@ -55,7 +55,7 @@ const auth = useAuth()
 const router = useRouter()
 
 function submit() {
-  // 🔐 MOCK LOGIN (luego será API)
+/*  // 🔐 MOCK LOGIN (luego será API)
   auth.login({
     id: 1,
     name: 'Stiven',
@@ -63,7 +63,15 @@ function submit() {
     role: ROLES.SUPER_ADMIN,
     tenantId: null,
   })
-
   router.push('/platform')
+*/
+  auth.login({
+    id: 2,
+    name: 'Laura',
+    email: 'laura@gloriaosorio.com',
+    role: ROLES.STAFF, // 👈 ESTO
+    tenantId: NULL,
+  })
+  router.push('/app/staff')
 }
 </script>
