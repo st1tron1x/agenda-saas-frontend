@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuth } from '../stores/auth'
+import { ROLES } from '@/constants/roles'
 
 import AuthLayout from '../layauts/AuthLayout.vue'
 import PlatformLayout from '../layauts/PlatformLayout.vue'
@@ -25,7 +26,7 @@ const routes = [
     component: PlatformLayout,
     meta: {
       requiresAuth: true,
-      role: 'super_admin',
+      role: ROLES.SUPER_ADMIN,
     },
     children: [
       {
@@ -42,7 +43,10 @@ const routes = [
         path: '/platform/tenants/create',
         name: 'TenantCreate',
         component: ()=> import('@/modules/platform/pages/TenantCreate.vue'),
-        meta: {role: 'super_admin'},
+        meta: {
+          requiresAuth: true,
+          role: ROLES.SUPER_ADMIN,
+        },
       },
     ],
   },

@@ -1,9 +1,10 @@
 import { ROLES } from '../constants/roles'
+import { PERMISSIONS } from '../constants/permissions'
 
 export const SIDEBAR_MENU = {
   [ROLES.SUPER_ADMIN]: [
     { title: 'Dashboard', to: '/platform', exact: true },
-    { title: 'Tenants', to: '/platform/tenants' },
+    { title: 'Tenants', to: '/platform/tenants', permission: PERMISSIONS.TENANT_VIEW },
     { title: 'Planes', to: '/platform/plans' },
     { title: 'Soporte', to: '/platform/support' },
     { title: 'Usuarios', to: '/app/users' },

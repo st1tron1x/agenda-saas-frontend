@@ -70,30 +70,6 @@ export const tenants = {
     features: ['basic'],
   },
 
-  xiomy: {
-    id: 'xiomy',
-    name: 'Xiomy Esthetic',
-    subdomain: 'xiomy', // xiomy.tudominio.com
-    plan: 'Pro',
-    active: true,
-    logo: {
-      src: '/Xiomy.png',
-      width: 240,
-      aspectRatio: 1,
-    },
-    primaryColor: '#E879F9',
-    secondaryColor: '#FBCFE8',
-    gradient: 'linear-gradient(135deg, #E879F9, #FBCFE8)',
-    // Metadata adicional
-    description: 'Centro de estética y belleza',
-    maxUsers: 20,
-    features: ['appointments', 'clients', 'services', 'staff'],
-    contact: {
-      email: 'info@xiomy.com',
-      phone: '+57 300 123 4567',
-    },
-  },
-
   go: {
     id: 'go',
     name: 'Gloria Osorio Studio',
@@ -117,6 +93,31 @@ export const tenants = {
       phone: '+57 301 987 6543',
     },
   },
+
+  xiomy: {
+    id: 'xiomy',
+    name: 'Xiomy Esthetic',
+    subdomain: 'xiomy', // xiomy.tudominio.com
+    plan: 'Pro',
+    active: true,
+    logo: {
+      src: '/Xiomy.png',
+      width: 240,
+      aspectRatio: 1,
+    },
+    primaryColor: '#E879F9',
+    secondaryColor: '#FBCFE8',
+    gradient: 'linear-gradient(135deg, #E879F9, #FBCFE8)',
+    // Metadata adicional
+    description: 'Centro de estética y belleza',
+    maxUsers: 20,
+    features: ['appointments', 'clients', 'services', 'staff'],
+    contact: {
+      email: 'info@xiomy.com',
+      phone: '+57 300 123 4567',
+    },
+  },
+  
 }
 
 /**

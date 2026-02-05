@@ -45,7 +45,8 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useAuth } from '../../../stores/auth'
+import { useAuth } from '@/stores/auth'
+import { ROLES } from '@/constants/roles'
 
 const email = ref('')
 const password = ref('')
@@ -58,6 +59,7 @@ function submit() {
   auth.login({
     id: 1,
     name: 'Stiven',
+    email: 'admin@techsolution.com',
     role: ROLES.SUPER_ADMIN,
     tenantId: null,
   })

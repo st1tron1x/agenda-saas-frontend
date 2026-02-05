@@ -45,6 +45,7 @@
             <v-btn variant="text" size="small">Editar</v-btn>
             <v-btn variant="text" size="small">Soporte</v-btn>
             <v-spacer />
+            <v-btn variant="text" size="small" color="sucess" @click="enterAsTenant(tenant)">Entrar</v-btn>
             <v-btn
               variant="text"
               size="small"
@@ -89,19 +90,31 @@
     },
   },
 ]*/
-import {ref, onMounted} from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuth } from '@/stores/auth'
+import { ROLES } from '@/constants/roles'
 import { getTenants } from '@/services/tenant.service'
 
 const tenants = ref([])
-
-onMounted(async()=>{
-  tenants.value =await getTenants()
-})
-import { useRouter } from 'vue-router'
-
 const router = useRouter()
+const auth = useAuth()
+
+onMounted(async () => {
+  tenants.value = await getTenants()
+})
+
 const goToCreate = () => {
   router.push('/platform/tenants/create')
+}
+
+function enterAsTenant(tenant) {
+  auth.impersonate({
+    tenantId: tenant.id,
+    role: ROLES.TENANT_ADMIN,
+  })
+
+  router.push('/app')
 }
 </script>
 

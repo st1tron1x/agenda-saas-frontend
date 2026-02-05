@@ -43,6 +43,7 @@ export function useAuth() {
 // src/stores/auth.js
 import { reactive, computed, watch } from 'vue'
 import { ROLES } from '../constants/roles'
+import { ROLE_PERMISSIONS } from '@/config/role.permissions'
 
 // Recuperar estado persistido
 const savedAuth = JSON.parse(localStorage.getItem('auth') || 'null')
@@ -108,6 +109,11 @@ export function useAuth() {
     return state.user?.role === requiredRole
   }
 
+  function hasPermission(permission) {
+    if (!state.user) return false
+    return ROLE_PERMISSIONS[state.user.role]?.includes(permission)
+  }
+
   /**
    * Verificar si el usuario tiene alguno de los roles
    * @param {string[]} roles - Array de roles
@@ -115,6 +121,13 @@ export function useAuth() {
    */
   function hasAnyRole(roles) {
     return roles.includes(state.user?.role)
+  }
+
+  function impersonate({ tenantId, role }) {
+    state.impersonation = {
+      tenantId,
+      role,
+    }
   }
 
   return {
@@ -133,6 +146,8 @@ export function useAuth() {
     updateUser,
     hasRole,
     hasAnyRole,
+    hasPermission,
+    impersonate,
   }
 }
 
