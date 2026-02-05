@@ -51,8 +51,9 @@ const { tenant } = useTenant()
 
 <style scoped>
 .auth-main {
-  height: calc(100vh - 48px); /* footer fijo */
-  overflow: hidden;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .branding {

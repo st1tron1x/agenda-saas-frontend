@@ -38,6 +38,12 @@ const routes = [
         name: 'TenantsList',
         component: () => import('../modules/platform/pages/TenantsList.vue'),
       },
+      {
+        path: '/platform/tenants/create',
+        name: 'TenantCreate',
+        component: ()=> import('@/modules/platform/pages/TenantCreate.vue'),
+        meta: {role: 'super_admin'},
+      },
     ],
   },
 ]

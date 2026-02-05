@@ -3,7 +3,7 @@
     <div class="d-flex justify-space-between align-center mb-6">
       <h1 class="text-h5 font-weight-bold">Tenants</h1>
 
-      <v-btn color="primary" prepend-icon="mdi-plus">
+      <v-btn color="primary" prepend-icon="mdi-plus" @click="goToCreate">
         Crear Tenant
       </v-btn>
     </div>
@@ -97,6 +97,12 @@ const tenants = ref([])
 onMounted(async()=>{
   tenants.value =await getTenants()
 })
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const goToCreate = () => {
+  router.push('/platform/tenants/create')
+}
 </script>
 
 <style scoped>

@@ -8,6 +8,7 @@
       <v-form @submit.prevent="submit">
         <v-text-field
           v-model="email"
+          :rules="[v => !!v || 'Campo requerido', v => /.+@.+/.test(v) || 'Email inválido']"
           label="Correo o usuario"
           variant="outlined"
         />
@@ -57,7 +58,7 @@ function submit() {
   auth.login({
     id: 1,
     name: 'Stiven',
-    role: 'super_admin',
+    role: ROLES.SUPER_ADMIN,
     tenantId: null,
   })
 
