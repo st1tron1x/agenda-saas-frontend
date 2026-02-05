@@ -1,55 +1,61 @@
-<!--AuthLayout.vue-->
 <template>
-  <v-container fluid class="auth-layout pa-0">
-    <v-row no-gutters class="fill-height">
+  <v-app>
+    <v-main class="auth-main pa-0">
+      <v-container fluid class="pa-0 fill-height">
+        <v-row no-gutters class="fill-height">
 
-      <!-- Imagen / Branding -->
-      <v-col
-        cols="12"
-        md="6"
-        class="branding d-none d-md-flex align-center justify-center"
-        :style="{background: tenant.gradient}"
-      >
-        <div class="text-center">
-          <v-img
-            :src="tenant.logo.src"
-            :width="tenant.logo.width"
-            :aspect-ratio="tenant.logo.aspectRatio"
-            class="mb-6"
-            contain
-          />
-          <h2 class="text-white font-weight-medium">
-            {{tenant.name}}
-          </h2>
-        </div>
-      </v-col>
+          <!-- Branding -->
+          <v-col
+            cols="12"
+            md="6"
+            class="branding d-none d-md-flex align-center justify-center"
+            :style="{ background: tenant.gradient }"
+          >
+            <div class="text-center">
+              <v-img
+                :src="tenant.logo.src"
+                :width="tenant.logo.width"
+                :aspect-ratio="tenant.logo.aspectRatio"
+                contain
+                class="mb-6"
+              />
+              <h2 class="text-white font-weight-medium">
+                {{ tenant.name }}
+              </h2>
+            </div>
+          </v-col>
 
-      <!-- Formulario -->
-      <v-col
-        cols="12"
-        md="6"
-        class="d-flex align-center justify-center"
-      >
-        <router-view />
-        <AppFooter />
-      </v-col>
+          <!-- Formulario -->
+          <v-col
+            cols="12"
+            md="6"
+            class="d-flex align-center justify-center"
+          >
+            <router-view />
+          </v-col>
 
-    </v-row>
-  </v-container>
+        </v-row>
+      </v-container>
+    </v-main>
+
+    <AppFooter />
+  </v-app>
 </template>
 
+<script setup>
+import { useTenant } from '../composables/useTenant'
+import AppFooter from '../components/AppFooter.vue'
+
+const { tenant } = useTenant()
+</script>
+
 <style scoped>
-.auth-layout {
-  min-height: 100vh;
+.auth-main {
+  height: calc(100vh - 48px); /* footer fijo */
+  overflow: hidden;
 }
 
 .branding {
   background: linear-gradient(135deg, #B48CF2, #E0C3FC);
 }
 </style>
-
-<script setup>
-import { useTenant } from '../composables/useTenant'
-import AppFooter from '../components/AppFooter.vue'
-const { tenant } = useTenant()
-</script>

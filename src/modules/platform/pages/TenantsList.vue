@@ -18,7 +18,7 @@
         <v-card class="tenant-card">
           <v-card-title class="d-flex align-center">
             <v-avatar size="48" class="mr-3">
-              <v-img :src="tenant.logo" />
+              <v-img :src="tenant.logo.src" />
             </v-avatar>
 
             <div>
@@ -60,29 +60,43 @@
 </template>
 
 <script setup>
-const tenants = [
+/*const tenants = [
   {
     id: 1,
     name: 'Xiomi Esthetic',
     plan: 'Pro',
     active: true,
-    logo: '../../public/Xiomy.png',
+    logo: {
+      src: '/Xiomy.png',
+    },
   },
   {
     id: 2,
-    name: 'Go Studio',
+    name: 'Gloria Osorio Studio',
     plan: 'Pro Plus',
     active: true,
-    logo: '../../public/GO STUDIO.png',
+    logo: {
+      src: '/GO STUDIO.png',
+    },
   },
   {
     id: 3,
-    name: 'Agenda Demo',
+    name: 'Tech Solution',
     plan: 'Trial',
     active: false,
-    logo: '../../public/TECH svj.png',
+    logo: {
+      src: '/tech SVJ.png',
+    },
   },
-]
+]*/
+import {ref, onMounted} from 'vue'
+import { getTenants } from '@/services/tenant.service'
+
+const tenants = ref([])
+
+onMounted(async()=>{
+  tenants.value =await getTenants()
+})
 </script>
 
 <style scoped>

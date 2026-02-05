@@ -1,7 +1,7 @@
 export const tenants = {
   default: {
     id: 'default',
-    name: 'Agenda SaaS',
+    name: 'Tech Solution',
     logo:{ 
         src:'/tech SVJ.png',
         width: 400,
@@ -13,9 +13,9 @@ export const tenants = {
 
   xiomy: {
     id: 'xiomy',
-    name: 'Xiomy Estetic',
+    name: 'Xiomi Esthetic',
     logo: {
-      src: '/tech SVJ.png',
+      src: '/Xiomy.png',
       width: 240,
       aspectRatio: 1,
     },
@@ -25,9 +25,9 @@ export const tenants = {
 
   go: {
     id: 'go',
-    name: 'Go Studio',
+    name: 'Gloria Osorio Studio',
     logo: {
-        src: '/logos/go.png',
+        src: '/GO STUDIO.png',
         width: 240,
         aspectRatio:1,
     },

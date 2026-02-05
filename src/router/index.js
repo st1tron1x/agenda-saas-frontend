@@ -1,8 +1,8 @@
 import { createRouter, createWebHistory } from 'vue-router'
+import { useAuth } from '../stores/auth'
 
 import AuthLayout from '../layauts/AuthLayout.vue'
 import PlatformLayout from '../layauts/PlatformLayout.vue'
-import DashboardLayout from '../layauts/DashboardLayout.vue'
 
 import Login from '../modules/auth/pages/Login.vue'
 import ForgotPassword from '../modules/auth/pages/ForgotPassword.vue'
@@ -23,25 +23,42 @@ const routes = [
   {
     path: '/platform',
     component: PlatformLayout,
-    meta:{role: 'SUPER_ADMIN'},
+    meta: {
+      requiresAuth: true,
+      role: 'super_admin',
+    },
     children: [
       {
         path: '',
         name: 'PlatformDashboard',
-        component: () =>
-          import('../modules/platform/pages/Dashboard.vue'),
+        component: () => import('../modules/platform/pages/Dashboard.vue'),
       },
       {
         path: 'tenants',
         name: 'TenantsList',
-        component: () =>
-          import('../modules/platform/pages/TenantsList.vue'),
+        component: () => import('../modules/platform/pages/TenantsList.vue'),
       },
     ],
   },
 ]
 
-export default createRouter({
+const router = createRouter({
   history: createWebHistory(),
   routes,
 })
+
+router.beforeEach((to, from, next) => {
+  const { state } = useAuth()
+
+  if (to.meta.requiresAuth && !state.isAuthenticated) {
+    return next('/login')
+  }
+
+  if (to.meta.role && state.user?.role !== to.meta.role) {
+    return next('/login')
+  }
+
+  next()
+})
+
+export default router

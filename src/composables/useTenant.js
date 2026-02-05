@@ -1,3 +1,4 @@
+//UseTenant.js
 import { tenants } from '../tenants/tenant.config'
 
 export function useTenant() {

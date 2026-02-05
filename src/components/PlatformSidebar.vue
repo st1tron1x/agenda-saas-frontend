@@ -4,6 +4,7 @@
     permanent
     width="260"
     class="sidebar"
+    :style="{ backgroundColor: tenant.primaryColor }"
   >
     <!-- Branding -->
     <div class="pa-4 text-center">
@@ -20,14 +21,16 @@
         v-for="item in menu"
         :key="item.title"
         :to="item.to"
+        :exact="item.exact"
         router
-        class="menu-item"
+        active-class="menu-active"
+        class="menu-item"        
       >
         <v-list-item-title>
           {{ item.title }}
         </v-list-item-title>
       </v-list-item>
-    </v-list>
+    </v-list>  
   </v-navigation-drawer>
 </template>
 
@@ -58,5 +61,16 @@ const menu = computed(() => SIDEBAR_MENU[role] || [])
 .menu-item:hover {
   background-color: rgba(255, 255, 255, 0.12);
   transform: translateX(6px);
+}
+.menu-active {
+  background-color: rgba(255, 255, 255, 0.18);
+  font-weight: 600;
+}
+.sidebar {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 1),
+    rgba(15, 23, 42, 0.9)
+  );
 }
 </style>
