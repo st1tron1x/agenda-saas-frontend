@@ -43,20 +43,29 @@
       </div>
     </v-card>
 
-    <!-- MAIN GRID -->
+ <!-- BLOQUE PRINCIPAL -->
     <v-row>
-      <!-- AGENDA -->
       <v-col cols="12" md="8">
         <AgendaTimeline />
       </v-col>
 
-      <!-- INGRESOS / GRÁFICAS -->
       <v-col cols="12" md="4">
         <RevenueChart />
       </v-col>
     </v-row>
 
-  </v-container>
+    <!-- SEGUNDA FILA DE INSIGHTS -->
+    <v-row class="mt-4">
+      <v-col cols="12" md="4">
+        <RevenueByServiceChart />
+      </v-col>
+
+      <v-col cols="12" md="8">
+        <TopServicesChart />
+      </v-col>
+    </v-row>
+   
+   </v-container>
 </template>
 
 <script setup>
@@ -66,6 +75,9 @@ import { useTenant } from '@/composables/useTenant'
 import AgendaTimeline from '@/modules/tenant/components/AgendaTimeline.vue'
 import RevenueSummary from '@/modules/tenant/components/RevenueSummary.vue'
 import RevenueChart from '@/modules/tenant/components/RevenueChart.vue'
+import RevenueByServiceChart from '@/modules/tenant/components/RevenueByServiceChart.vue'
+import TopServicesChart from '@/modules/tenant/components/TopServicesChart.vue'
+
 
 const { tenant } = useTenant()
 
