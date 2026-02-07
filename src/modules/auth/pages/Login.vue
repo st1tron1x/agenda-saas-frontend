@@ -70,7 +70,7 @@ function submit() {
     name: 'Laura',
     email: 'laura@gloriaosorio.com',
     role: ROLES.STAFF, // 👈 ESTO
-    tenantId: NULL,
+    tenantId: null,
   })
   router.push('/app/staff')*/
 }

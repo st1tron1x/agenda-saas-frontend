@@ -3,24 +3,24 @@ import { PERMISSIONS } from '../constants/permissions'
 
 export const SIDEBAR_MENU = {
   [ROLES.SUPER_ADMIN]: [
-    { title: 'Dashboard', to: '/platform', exact: true },
-    { title: 'Tenants', to: '/platform/tenants', permission: PERMISSIONS.TENANT_VIEW },
-    { title: 'Planes', to: '/platform/plans' },
-    { title: 'Soporte', to: '/platform/support' },
-    { title: 'Usuarios', to: '/app/users' },
+    { title: 'Dashboard', to: '/platform', exact: true, icon: 'mdi-view-dashboard' },
+    { title: 'Tenants', to: '/platform/tenants', icon: 'mdi-domain', permission: PERMISSIONS.TENANT_VIEW },
+    { title: 'Planes', to: '/platform/plans', icon: 'mdi-domain', },
+    { title: 'Soporte', to: '/platform/support', icon: 'mdi-domain', },
+    { title: 'Usuarios', to: '/app/users', icon: 'mdi-domain', },
   ],
 
   [ROLES.TENANT_ADMIN]: [
-    { title: 'Dashboard', to: '/app', exact: true },
-    { title: 'Agenda', to: '/app/agenda' },
-    { title: 'Clientes', to: '/app/clients' },
-    { title: 'Servicios', to: '/app/services' },
-    { title: 'Usuarios', to: '/app/users' },
+    { title: 'Dashboard', to: '/app', exact: true, icon: 'mdi-view-dashboard' },
+    { title: 'Agenda', to: '/app/agenda', icon: 'mdi-domain' },
+    { title: 'Clientes', to: '/app/clients', icon: 'mdi-domain' },
+    { title: 'Servicios', to: '/app/services', icon: 'mdi-domain' },
+    { title: 'Usuarios', to: '/app/users', icon: 'mdi-domain', },
   ],
 
   [ROLES.STAFF]: [
-    { title: 'Dashboard', to: '/app', exact: true },
-    { title: 'Agenda', to: '/app/agenda' },
-    { title: 'Clientes', to: '/app/clients' },
+    { title: 'Dashboard', to: '/app', exact: true, icon: 'mdi-view-dashboard' },
+    { title: 'Agenda', to: '/app/agenda', icon: 'mdi-domain' },
+    { title: 'Clientes', to: '/app/clients', icon: 'mdi-domain' },
   ],
 }

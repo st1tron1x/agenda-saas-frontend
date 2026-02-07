@@ -14,65 +14,62 @@
     </v-card>
 
     <!-- KPI CARDS -->
-    <v-row class="mb-6">
-      <v-col cols="12" md="3" v-for="card in kpis" :key="card.label">
-        <v-card class="kpi-card" elevation="2">
-          <v-card-text class="d-flex align-center justify-space-between">
-            <div>
-              <div class="text-h5 font-weight-bold">{{ card.value }}</div>
-              <div class="text-caption">{{ card.label }}</div>
-            </div>
-            <v-icon size="32">{{ card.icon }}</v-icon>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+    <RevenueSummary />             
 
     <!-- MAIN GRID -->
     <v-row>
       <!-- AGENDA -->
       <v-col cols="12" md="8">
-        <v-card class="section-card">
-          <v-card-title>Agenda de hoy</v-card-title>
-          <v-divider />
-
-          <v-card-text>
-            <div
-              v-for="item in agenda"
-              :key="item.time"
-              class="agenda-item"
-            >
-              <div class="agenda-time">{{ item.time }}</div>
-              <div>
-                <div class="font-weight-medium">{{ item.client }}</div>
-                <div class="text-caption text-grey">
-                  {{ item.service }}
-                </div>
-              </div>
-            </div>
-          </v-card-text>
-        </v-card>
+        
+          <agenda-timeline/>
+          
       </v-col>
 
-      <!-- ACCIONES -->
-      <v-col cols="12" md="4">
-        <v-card class="section-card">
-          <v-card-title>Acciones rápidas</v-card-title>
-          <v-divider />
-          <v-card-text class="d-flex flex-column ga-3">
-            <v-btn :style="{ backgroundColor: themePrimary }" size="small" height="40" class="text-caption text-white" block prepend-icon="mdi-calendar-plus">
-              Nueva cita
-            </v-btn>
-            <v-btn variant="outlined" size="small" height="40" class="text-caption" block prepend-icon="mdi-account-plus">
-              Nuevo cliente
-            </v-btn>
-            <v-btn variant="text" size="small" height="40" class="text-caption" block prepend-icon="mdi-calendar">
-              Ver agenda
-            </v-btn>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
+      <!-- INGRESOS -->
+      <!-- LADO DERECHO -->
+  <v-col cols="12" md="4">
+    <RevenueChart class="mb-4" />
+
+    <v-card class="section-card">
+      <v-card-title>Acciones rápidas</v-card-title>
+      <v-divider />
+      <v-card-text class="d-flex flex-column ga-3">
+        <v-btn
+          :style="{ backgroundColor: themePrimary }"
+          size="small"
+          height="40"
+          class="text-caption text-white"
+          block
+          prepend-icon="mdi-calendar-plus"
+        >
+          Nueva cita
+        </v-btn>
+
+        <v-btn
+          variant="outlined"
+          size="small"
+          height="40"
+          class="text-caption"
+          block
+          prepend-icon="mdi-account-plus"
+        >
+          Nuevo cliente
+        </v-btn>
+
+        <v-btn
+          variant="text"
+          size="small"
+          height="40"
+          class="text-caption"
+          block
+          prepend-icon="mdi-calendar"
+        >
+          Ver agenda
+        </v-btn>
+      </v-card-text>
+    </v-card>
+  </v-col>
+</v-row>
 
   </v-container>
 </template>
@@ -80,6 +77,9 @@
 import { computed } from 'vue'
 
 import { useTenant } from '@/composables/useTenant'
+import AgendaTimeline from '../components/AgendaTimeline.vue'
+import RevenueSummary from '@/modules/tenant/components/RevenueSummary.vue'
+import RevenueChart from '@/modules/tenant/components/RevenueChart.vue'
 
 const { tenant } = useTenant()
 

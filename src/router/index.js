@@ -77,8 +77,8 @@ router.beforeEach((to, from, next) => {
     return next('/login')
   }
 
-  if (to.meta.role && state.user?.role !== to.meta.role) {
-    return next('/login')
+  if (to.meta.permission && !auth.hasPermission(to.meta.permission)) {
+    return next('/login') // O mejor: mostrar página 403
   }
 
   next()

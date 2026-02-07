@@ -123,10 +123,28 @@ export function useAuth() {
     return roles.includes(state.user?.role)
   }
 
-  function impersonate({ tenantId, role }) {
-    state.impersonation = {
+  function impersonate({ tenantId, role, name }) {
+  // Guardar usuario original
+    if (!state.originalUser) {
+      state.originalUser = { ...state.user }
+    }
+
+    // Cambiar a tenant
+    state.user = {
+      ...state.user,
       tenantId,
       role,
+      name: name || 'Impersonating',
+    }
+
+    state.isImpersonating = true
+  }
+
+  function exitImpersonation() {
+    if (state.originalUser) {
+      state.user = { ...state.originalUser }
+      state.originalUser = null
+      state.isImpersonating = false
     }
   }
 
