@@ -79,11 +79,15 @@
 <script setup>
 import { computed } from 'vue'
 
+import { useTenant } from '@/composables/useTenant'
+
+const { tenant } = useTenant()
+
 const themePrimary = computed(() => {
   return tenant.value?.primaryColor || '#6366F1'
 })
 
-const tenantName = 'Gloria Osorio Studio'
+const tenantName = 'Gloria Osorio Estudio'
 
 const todayLabel = new Date().toLocaleDateString('es-CO', {
   weekday: 'long',
