@@ -13,10 +13,10 @@
       </div>
     </v-card>
 
-    <!-- KPI CARDS -->
+    <!-- KPIs -->
     <RevenueSummary class="mb-6" />
 
-    <!-- ACCIONES RÁPIDAS (HORIZONTALES) -->
+    <!-- ACCIONES RÁPIDAS -->
     <v-card class="section-card pa-3 mb-6">
       <div class="d-flex flex-wrap gap-3">
         <v-btn
@@ -27,39 +27,36 @@
           Nueva cita
         </v-btn>
 
-        <v-btn
-          variant="outlined"
-          prepend-icon="mdi-account-plus"
-        >
+        <v-btn variant="outlined" prepend-icon="mdi-account-plus">
           Nuevo cliente
         </v-btn>
 
-        <v-btn
-          variant="tonal"
-          prepend-icon="mdi-calendar"
-        >
+        <v-btn variant="tonal" prepend-icon="mdi-calendar">
           Ver agenda
         </v-btn>
       </div>
     </v-card>
 
- <!-- BLOQUE PRINCIPAL -->
-    <v-row>
+    <!-- OPERACIÓN DIARIA -->
+    <v-row class="mb-6">
       <v-col cols="12">
         <AgendaTimeline />
       </v-col>
+    </v-row>
 
+    <!-- MÉTRICAS DEL DÍA -->
+    <v-row class="mb-6">
       <v-col cols="12" md="6">
-        <AppointmentStatusChart/>
+        <AppointmentStatusChart />
       </v-col>
 
       <v-col cols="12" md="6">
-        <RevenueChart/>
+        <RevenueChart />
       </v-col>
     </v-row>
 
-    <!-- SEGUNDA FILA DE INSIGHTS -->
-    <v-row class="mt-4">
+    <!-- INSIGHTS -->
+    <v-row>
       <v-col cols="12" md="6">
         <RevenueByServiceChart />
       </v-col>
@@ -68,8 +65,8 @@
         <TopServicesChart />
       </v-col>
     </v-row>
-   
-   </v-container>
+
+  </v-container>
 </template>
 
 <script setup>
@@ -81,18 +78,13 @@ import RevenueSummary from '@/modules/tenant/components/RevenueSummary.vue'
 import RevenueChart from '@/modules/tenant/components/RevenueChart.vue'
 import RevenueByServiceChart from '@/modules/tenant/components/RevenueByServiceChart.vue'
 import TopServicesChart from '@/modules/tenant/components/TopServicesChart.vue'
-import AppointmentStatusChart from '../components/AppointmentStatusChart.vue'
-
+import AppointmentStatusChart from '@/modules/tenant/components/AppointmentStatusChart.vue'
 
 const { tenant } = useTenant()
 
-const themePrimary = computed(() => {
-  return tenant.value?.primaryColor || '#6366F1'
-})
+const themePrimary = computed(() => tenant.value?.primaryColor || '#6366F1')
 
 const tenantName = 'Gloria Osorio Estudio'
-
-const series = computed(() => apiResponse.value)
 
 const todayLabel = new Date().toLocaleDateString('es-CO', {
   weekday: 'long',
@@ -107,14 +99,12 @@ const todayLabel = new Date().toLocaleDateString('es-CO', {
   min-height: 100%;
 }
 
-/* Header */
 .dashboard-header {
   background: linear-gradient(90deg, #f1f5f9, #ffffff);
   border-radius: 16px;
   padding: 20px;
 }
 
-/* Section cards */
 .section-card {
   border-radius: 18px;
 }
