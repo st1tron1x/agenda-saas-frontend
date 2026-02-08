@@ -45,22 +45,26 @@
 
  <!-- BLOQUE PRINCIPAL -->
     <v-row>
-      <v-col cols="12" md="8">
+      <v-col cols="12">
         <AgendaTimeline />
       </v-col>
 
-      <v-col cols="12" md="4">
-        <RevenueChart />
+      <v-col cols="12" md="6">
+        <AppointmentStatusChart/>
+      </v-col>
+
+      <v-col cols="12" md="6">
+        <RevenueChart/>
       </v-col>
     </v-row>
 
     <!-- SEGUNDA FILA DE INSIGHTS -->
     <v-row class="mt-4">
-      <v-col cols="12" md="4">
+      <v-col cols="12" md="6">
         <RevenueByServiceChart />
       </v-col>
 
-      <v-col cols="12" md="8">
+      <v-col cols="12" md="6">
         <TopServicesChart />
       </v-col>
     </v-row>
@@ -77,6 +81,7 @@ import RevenueSummary from '@/modules/tenant/components/RevenueSummary.vue'
 import RevenueChart from '@/modules/tenant/components/RevenueChart.vue'
 import RevenueByServiceChart from '@/modules/tenant/components/RevenueByServiceChart.vue'
 import TopServicesChart from '@/modules/tenant/components/TopServicesChart.vue'
+import AppointmentStatusChart from '../components/AppointmentStatusChart.vue'
 
 
 const { tenant } = useTenant()
@@ -86,6 +91,8 @@ const themePrimary = computed(() => {
 })
 
 const tenantName = 'Gloria Osorio Estudio'
+
+const series = computed(() => apiResponse.value)
 
 const todayLabel = new Date().toLocaleDateString('es-CO', {
   weekday: 'long',
