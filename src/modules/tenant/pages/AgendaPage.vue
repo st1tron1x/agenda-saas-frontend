@@ -1,79 +1,73 @@
 <template>
-  <v-container fluid class="agenda-page pa-6">
+  <v-container fluid class="pa-6">
 
-    <!-- HEADER -->
-    <v-card class="agenda-header mb-6" flat>
-      <div class="d-flex flex-wrap align-center justify-space-between gap-4">
-        <div>
-          <h2 class="text-h5 font-weight-bold">Agenda</h2>
-          <span class="text-caption text-grey">
-            Gestiona tus citas por día, semana o mes
-          </span>
-        </div>
+    <AgendaCalendar
+      :events="events"
+      @create="openCreate"
+      @edit="openEdit"
+    />
 
-        <!-- ACCIONES -->
-        <div class="d-flex flex-wrap gap-2">
-          <v-btn
-            color="primary"
-            prepend-icon="mdi-calendar-plus"
-            @click="openNewAppointment"
-          >
-            Nueva cita
-          </v-btn>
-
-          <v-btn variant="outlined" @click="setView('timeGridDay')">
-            Día
-          </v-btn>
-
-          <v-btn variant="outlined" @click="setView('timeGridWeek')">
-            Semana
-          </v-btn>
-
-          <v-btn variant="outlined" @click="setView('dayGridMonth')">
-            Mes
-          </v-btn>
-        </div>
-      </div>
-    </v-card>
-
-    <!-- CALENDARIO -->
-    <v-card class="calendar-card">
-      <AgendaCalendar ref="calendarRef" />
-    </v-card>
+    <AppointmentModal
+      v-model="modalOpen"
+      :appointment="selectedAppointment"
+      @save="saveAppointment"
+      @cancel="cancelAppointment"
+    />
 
   </v-container>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+
 import AgendaCalendar from '@/modules/tenant/components/AgendaCalendar.vue'
+import AppointmentModal from '@/modules/tenant/components/AppointmentModal.vue'
 
-const calendarRef = ref(null)
+/* MOCK DATA (luego Django) */
+const events = ref([
+  {
+    id: 1,
+    title: 'Ana Gómez – Labios',
+    start: '2026-02-08T09:00',
+    status: 'CONFIRMADA',
+  },
+  {
+    id: 2,
+    title: 'María Ruiz – Cejas',
+    start: '2026-02-08T11:30',
+    status: 'PENDIENTE',
+  },
+])
 
-function setView(viewName) {
-  calendarRef.value?.changeView(viewName)
+const modalOpen = ref(false)
+const selectedAppointment = ref(null)
+
+function openCreate(date) {
+  selectedAppointment.value = {
+    date: date,
+    time: '',
+    status: 'CONFIRMADA',
+  }
+  modalOpen.value = true
 }
 
-function openNewAppointment() {
-  // Más adelante: abrir modal
-  console.log('Nueva cita')
+function openEdit(event) {
+  selectedAppointment.value = {
+    id: event.id,
+    date: event.startStr.split('T')[0],
+    time: event.startStr.split('T')[1]?.slice(0, 5),
+    status: event.extendedProps.status,
+  }
+  modalOpen.value = true
+}
+
+function saveAppointment(data) {
+  console.log('Guardar cita:', data)
+  // 👉 Aquí luego va POST / PUT Django
+}
+
+function cancelAppointment(data) {
+  console.log('Cancelar cita:', data)
+  // 👉 Aquí luego va DELETE Django
 }
 </script>
-
-<style scoped>
-.agenda-page {
-  background-color: #f8fafc;
-  min-height: 100%;
-}
-
-.agenda-header {
-  background: linear-gradient(90deg, #f1f5f9, #ffffff);
-  border-radius: 16px;
-  padding: 20px;
-}
-
-.calendar-card {
-  border-radius: 18px;
-  padding: 12px;
-}
-</style>
