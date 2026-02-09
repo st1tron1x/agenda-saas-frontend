@@ -33,6 +33,14 @@ import { ref, watch } from 'vue'
 import AgendaCalendar from '@/modules/tenant/components/AgendaCalendar.vue'
 import AppointmentModal from '@/modules/tenant/components/AppointmentModal.vue'
 import { useAgenda } from '@/modules/tenant/composables/useAgenda'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const preselectedClientId = route.query.clientId
+
+function goToClient() {
+  router.push(`/app/clientes/${selectedAppointment.value.clientId}`)
+}
 
 /* MOCK DATA (luego Django) */
 const events = ref([
@@ -67,18 +75,21 @@ watch(
 )
 
 /* ---------------- ACCIONES ---------------- */
-
-function openCreate(date) {
+function openCreate(dateInfo) {
   selectedAppointment.value = {
-    clientId: null,
+    clientId: preselectedClientId
+      ? Number(preselectedClientId)
+      : null,
     serviceId: null,
     status: 'CONFIRMADA',
-    date,
-    time: '',
+    date: dateInfo.dateStr ?? dateInfo.startStr.split('T')[0],
+    time: dateInfo.startStr?.split('T')[1]?.slice(0, 5) || '',
     notes: '',
   }
+
   modalOpen.value = true
 }
+
 
 function openEdit(event) {
   selectedAppointment.value = {

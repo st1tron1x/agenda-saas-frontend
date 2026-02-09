@@ -36,6 +36,13 @@
             Nuevo cliente
           </v-btn>
 
+          <v-btn
+            variant="text"
+            prepend-icon="mdi-account"
+            @click="goToClient"
+          >
+            Ver cliente
+          </v-btn>
 
           <v-select
             label="Servicio"
@@ -129,6 +136,14 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+
+function goToClient() {
+  if (!props.appointment?.clientId) return
+  router.push(`/app/clients/${props.appointment.clientId}`)
+}
 
 const props = defineProps({
   modelValue: Boolean,

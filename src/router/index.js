@@ -11,6 +11,7 @@ import ForgotPassword from '@/modules/auth/pages/ForgotPassword.vue'
 import ResetPassword from '@/modules/auth/pages/ResetPassword.vue'
 import TenantDashboard from '@/modules/tenant/pages/TenantDashboard.vue'
 import AgendaPage from '@/modules/tenant/pages/AgendaPage.vue'
+import ClientsPage from '@/modules/tenant/pages/ClientsPage.vue'
 
 const routes = [
   {
@@ -62,9 +63,11 @@ const routes = [
       { path: 'dashboard', component: ()=> import('@/modules/tenant/pages/TenantDashboard.vue'),},
       { path: 'staff', component: () => import('@/modules/tenant/pages/StaffDashboard.vue'), meta:{role:ROLES.STAFF,}},
       { path: 'tv', component: () => import('@/modules/tenant/pages/TvDashboard.vue') },
-      { path: '/app/agenda', component: AgendaPage, meta: {requiresAuth: true}}
+      { path: 'agenda', component: AgendaPage, meta: {requiresAuth: true}},
+      { path: 'clients', component: ()=>import('@/modules/tenant/pages/ClientsPage.vue')},
+      { path: 'clients/:id', component: () => import('@/modules/tenant/pages/ClientDetailPage.vue'), props: true,},
     ],
-  },
+  } 
 ]
 
 const router = createRouter({

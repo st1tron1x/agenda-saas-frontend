@@ -50,6 +50,7 @@ import { ROLES } from '@/constants/roles'
 const { tenant } = useTenant()
 const auth = useAuth()
 
+
 const roleName = computed(() => {
   const map = {
     [ROLES.TENANT_ADMIN]: 'Administrador',

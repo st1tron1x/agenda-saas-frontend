@@ -65,11 +65,15 @@ const calendarOptions = computed(() => ({
   })),
 
   dateClick(info) {
-    emit('create', info.dateStr)
+    emit('create', info)
   },
 
   eventClick(info) {
-    emit('edit', info.event)
+    emit('edit',{
+      id: info.event.id,
+      clientId: info.event.extendedProps.clientId,
+      start: info.event.startStr,
+    })
   },
 
   eventDrop(info){
