@@ -79,6 +79,7 @@ import RevenueChart from '@/modules/tenant/components/RevenueChart.vue'
 import RevenueByServiceChart from '@/modules/tenant/components/RevenueByServiceChart.vue'
 import TopServicesChart from '@/modules/tenant/components/TopServicesChart.vue'
 import AppointmentStatusChart from '@/modules/tenant/components/AppointmentStatusChart.vue'
+import { useAgenda } from '@/modules/tenant/composables/useAgenda'
 
 const { tenant } = useTenant()
 
@@ -91,6 +92,8 @@ const todayLabel = new Date().toLocaleDateString('es-CO', {
   day: 'numeric',
   month: 'long',
 })
+
+const {totalToday, byStatus } = useAgenda()
 </script>
 
 <style scoped>

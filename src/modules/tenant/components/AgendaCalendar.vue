@@ -5,22 +5,21 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed } from 'vue'
 import FullCalendar from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 
-const showModal = ref(false)
-const selectedAppointment = ref(null)
-const selectedDate = ref(null)
-
 
 const props = defineProps({
-  events: Array,
+  events: {
+    type: Array,
+    default: () => [],
+  },
 })
 
-const emit = defineEmits(['create', 'edit'])
+const emit = defineEmits(['create', 'edit', 'move', 'resize'])
 
 function statusColor(status) {
   switch (status) {
@@ -35,7 +34,15 @@ function statusColor(status) {
   }
 }
 
-const calendarOptions = {
+const calendarEvents = computed(() =>
+  props.events.map(e => ({
+    ...e,
+    backgroundColor: statusColor(e.status),
+    borderColor: statusColor(e.status),
+  }))
+)
+
+const calendarOptions = computed(() => ({
   plugins: [dayGridPlugin, timeGridPlugin, interactionPlugin],
   initialView: 'timeGridWeek',
   locale: 'es',
@@ -48,9 +55,10 @@ const calendarOptions = {
   },
 
   selectable: true,
-  editable: false,
+  editable: true,
+  eventResizableFromStart: true,
 
-  events: props.events.map(e => ({
+  events: props.events.map(e=>({
     ...e,
     backgroundColor: statusColor(e.status),
     borderColor: statusColor(e.status),
@@ -63,13 +71,15 @@ const calendarOptions = {
   eventClick(info) {
     emit('edit', info.event)
   },
-}
 
-const openNewAppointment = (date) => {
-  selectedAppointment.value = null
-  modalOpen.value = true
-}
+  eventDrop(info){
+    emit('move', info.event)
+  },
 
+  eventResize(info){
+    emit('resize', info.event)
+  },
+}))
 </script>
 
 <style scoped>

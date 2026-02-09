@@ -1,10 +1,20 @@
 <template>
   <v-container fluid class="pa-6">
 
+    <v-card class="pa-3 mb-4 d-flex flex-wrap gap-3">
+      <v-chip color="green" label>Confirmada</v-chip>
+      <v-chip color="amber" label>Pendiente</v-chip>
+      <v-chip color="blue" label>En atención</v-chip>
+      <v-chip color="red" label>Cancelada</v-chip>
+    </v-card>
+
+
     <AgendaCalendar
       :events="events"
       @create="openCreate"
       @edit="openEdit"
+      @move="onMove"
+      @resize="onResize"
     />
 
     <AppointmentModal
@@ -18,10 +28,11 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 import AgendaCalendar from '@/modules/tenant/components/AgendaCalendar.vue'
 import AppointmentModal from '@/modules/tenant/components/AppointmentModal.vue'
+import { useAgenda } from '@/modules/tenant/composables/useAgenda'
 
 /* MOCK DATA (luego Django) */
 const events = ref([
@@ -39,14 +50,32 @@ const events = ref([
   },
 ])
 
+/* Estado modal */
 const modalOpen = ref(false)
 const selectedAppointment = ref(null)
 
+/* Agenda global (Dashboard + Agenda) */
+const { appointments } = useAgenda()
+
+/* 🔑 Sincronización correcta */
+watch(
+  events,
+  (val) => {
+    appointments.value = val
+  },
+  { immediate: true }
+)
+
+/* ---------------- ACCIONES ---------------- */
+
 function openCreate(date) {
   selectedAppointment.value = {
-    date: date,
-    time: '',
+    clientId: null,
+    serviceId: null,
     status: 'CONFIRMADA',
+    date,
+    time: '',
+    notes: '',
   }
   modalOpen.value = true
 }
@@ -54,20 +83,37 @@ function openCreate(date) {
 function openEdit(event) {
   selectedAppointment.value = {
     id: event.id,
+    clientId: event.extendedProps?.clientId ?? null,
+    serviceId: event.extendedProps?.serviceId ?? null,
+    status: event.extendedProps?.status,
     date: event.startStr.split('T')[0],
     time: event.startStr.split('T')[1]?.slice(0, 5),
-    status: event.extendedProps.status,
+    notes: event.extendedProps?.notes ?? '',
   }
   modalOpen.value = true
 }
 
 function saveAppointment(data) {
   console.log('Guardar cita:', data)
-  // 👉 Aquí luego va POST / PUT Django
 }
 
 function cancelAppointment(data) {
   console.log('Cancelar cita:', data)
-  // 👉 Aquí luego va DELETE Django
+}
+
+function onMove(event) {
+  console.log('Cita movida:', {
+    id: event.id,
+    start: event.start,
+    end: event.end,
+  })
+}
+
+function onResize(event) {
+  console.log('Cita redimensionada:', {
+    id: event.id,
+    start: event.start,
+    end: event.end,
+  })
 }
 </script>
