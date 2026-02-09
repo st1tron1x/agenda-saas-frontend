@@ -1,118 +1,150 @@
 <template>
-  <v-container fluid class="tenant-dashboard pa-6">
+  <v-container fluid class="pa-6">
 
     <!-- HEADER -->
-    <v-card class="dashboard-header mb-6" flat>
-      <div class="d-flex flex-column">
-        <h2 class="text-h5 font-weight-bold">
-          👋 Buen día, {{ tenantName }}
-        </h2>
-        <span class="text-caption text-grey">
-          {{ todayLabel }}
-        </span>
+    <div class="d-flex justify-space-between align-center mb-6">
+      <div>
+        <h1 class="text-h5 font-weight-bold">
+          Dashboard
+        </h1>
+        <p class="text-caption text-grey">
+          Bienvenido {{ userName }}
+        </p>
       </div>
-    </v-card>
 
-    <!-- KPIs -->
-    <RevenueSummary class="mb-6" />
+      <v-chip color="primary" variant="flat">
+        {{ today }}
+      </v-chip>
+    </div>
 
-    <!-- ACCIONES RÁPIDAS -->
-    <v-card class="section-card pa-3 mb-6">
-      <div class="d-flex flex-wrap gap-3">
-        <v-btn
-          :style="{ backgroundColor: themePrimary }"
-          class="text-white"
-          prepend-icon="mdi-calendar-plus"
-        >
-          Nueva cita
-        </v-btn>
+    <!-- RESUMEN DEL DÍA -->
+    <TodaySummary class="mb-6" />
 
-        <v-btn variant="outlined" prepend-icon="mdi-account-plus">
-          Nuevo cliente
-        </v-btn>
-
-        <v-btn variant="tonal" prepend-icon="mdi-calendar">
-          Ver agenda
-        </v-btn>
-      </div>
-    </v-card>
-
-    <!-- OPERACIÓN DIARIA -->
+    <!-- GRÁFICAS Y DATOS -->
     <v-row class="mb-6">
-      <v-col cols="12">
+      <!-- Agenda de hoy -->
+      <v-col cols="12" md="6">
         <AgendaTimeline />
       </v-col>
-    </v-row>
 
-    <!-- MÉTRICAS DEL DÍA -->
-    <v-row class="mb-6">
+      <!-- Estados de citas -->
       <v-col cols="12" md="6">
         <AppointmentStatusChart />
       </v-col>
+    </v-row>
 
+    <!-- MÁS GRÁFICAS -->
+    <v-row class="mb-6">
+      <!-- Ingresos últimos 7 días -->
       <v-col cols="12" md="6">
         <RevenueChart />
       </v-col>
-    </v-row>
 
-    <!-- INSIGHTS -->
-    <v-row>
-      <v-col cols="12" md="6">
-        <RevenueByServiceChart />
-      </v-col>
-
+      <!-- Top servicios -->
       <v-col cols="12" md="6">
         <TopServicesChart />
       </v-col>
     </v-row>
 
+    <!-- RESUMEN DE INGRESOS -->
+    <RevenueSummary class="mb-6" />
+
+    <!-- ACCIONES RÁPIDAS -->
+    <v-row>
+      <v-col cols="12" md="4">
+        <v-card class="pa-4">
+          <div class="text-subtitle-1 mb-3 font-weight-medium">
+            Acciones rápidas
+          </div>
+
+          <v-btn
+            block
+            color="primary"
+            class="mb-2"
+            prepend-icon="mdi-calendar-plus"
+            @click="showNewAppointment = true"
+          >
+            Nueva cita
+          </v-btn>
+
+          <v-btn
+            block
+            variant="outlined"
+            class="mb-2"
+            prepend-icon="mdi-account-plus"
+            @click="showNewClient = true"
+          >
+            Nuevo cliente
+          </v-btn>
+
+          <v-btn
+            block
+            variant="text"
+            to="/app/agenda"
+          >
+            Ver agenda completa
+          </v-btn>
+        </v-card>
+      </v-col>
+
+      <!-- Próximas citas -->
+      <v-col cols="12" md="8">
+        <UpcomingAppointments />
+      </v-col>
+    </v-row>
+
+    <!-- MODALS -->
+    <AppointmentModal
+      v-model="showNewAppointment"
+      @save="handleSaveAppointment"
+    />
+
+    <ClientFormModal
+      v-model="showNewClient"
+      @save="handleSaveClient"
+    />
+
   </v-container>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useTenant } from '@/composables/useTenant'
+import { ref, computed } from 'vue'
+import { useAuth } from '@/stores/auth'
 
+// Componentes
+import TodaySummary from '@/modules/tenant/components/TodaySummary.vue'
 import AgendaTimeline from '@/modules/tenant/components/AgendaTimeline.vue'
-import RevenueSummary from '@/modules/tenant/components/RevenueSummary.vue'
-import RevenueChart from '@/modules/tenant/components/RevenueChart.vue'
-import RevenueByServiceChart from '@/modules/tenant/components/RevenueByServiceChart.vue'
-import TopServicesChart from '@/modules/tenant/components/TopServicesChart.vue'
 import AppointmentStatusChart from '@/modules/tenant/components/AppointmentStatusChart.vue'
-import { useAgenda } from '@/modules/tenant/composables/useAgenda'
+import RevenueChart from '@/modules/tenant/components/RevenueChart.vue'
+import TopServicesChart from '@/modules/tenant/components/TopServicesChart.vue'
+import RevenueSummary from '@/modules/tenant/components/RevenueSummary.vue'
+import UpcomingAppointments from '@/modules/tenant/components/UpcomingAppointments.vue'
+import AppointmentModal from '@/modules/tenant/components/AppointmentModal.vue'
+import ClientFormModal from '@/modules/tenant/components/ClientFormModal.vue'
 
-const { tenant } = useTenant()
+const auth = useAuth()
 
-const themePrimary = computed(() => tenant.value?.primaryColor || '#6366F1')
+const showNewAppointment = ref(false)
+const showNewClient = ref(false)
 
-const tenantName = 'Gloria Osorio Estudio'
+const userName = computed(() => auth.state.user?.name || 'Usuario')
 
-const todayLabel = new Date().toLocaleDateString('es-CO', {
+const today = new Date().toLocaleDateString('es-CO', {
   weekday: 'long',
   day: 'numeric',
   month: 'long',
+  year: 'numeric',
 })
 
-const {totalToday, byStatus } = useAgenda()
+function handleSaveAppointment(data) {
+  console.log('Guardar cita:', data)
+  // Aquí iría la llamada a la API
+  showNewAppointment.value = false
+}
+
+function handleSaveClient(data) {
+  console.log('Guardar cliente:', data)
+  // Aquí iría la llamada a la API
+  showNewClient.value = false
+}
 </script>
-
-<style scoped>
-.tenant-dashboard {
-  background-color: #f8fafc;
-  min-height: 100%;
-}
-
-.dashboard-header {
-  background: linear-gradient(90deg, #f1f5f9, #ffffff);
-  border-radius: 16px;
-  padding: 20px;
-}
-
-.section-card {
-  border-radius: 18px;
-}
-
-.gap-3 {
-  gap: 12px;
-}
-</style>

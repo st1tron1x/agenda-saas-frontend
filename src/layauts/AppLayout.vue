@@ -2,32 +2,37 @@
   <v-app>
     <v-layout>
 
-      <!-- Sidebar Tenant -->
+      <!-- Sidebar -->
       <PlatformSidebar />
 
-      <!-- Contenido principal -->
+      <!-- Main -->
       <v-main>
         <!-- Top bar -->
         <v-app-bar
           flat
+          color="white"
           height="64"
-          :style="{ background: tenant.gradient }"
-          class="px-6 text-white"
+          class="px-6"
         >
-          <v-avatar size="36" class="mr-3">
-            <v-img :src="tenant.logo.src" />
-          </v-avatar>
-
-          <strong>{{ tenant.name }}</strong>
-
           <v-spacer />
+          
+          <!-- Indicador de impersonación -->
+          <v-chip
+            v-if="auth.state.isImpersonating"
+            color="warning"
+            variant="flat"
+            size="small"
+            prepend-icon="mdi-account-switch"
+            class="mr-4"
+            @click="exitImpersonation"
+          >
+            Modo impersonación (clic para salir)
+          </v-chip>
 
-          <span class="text-caption">
-            {{ roleName }}
-          </span>
+          <span class="text-caption">{{ roleName }}</span>
         </v-app-bar>
 
-        <!-- Vista -->
+        <!-- Page content -->
         <v-container fluid class="pa-6">
           <router-view />
         </v-container>
@@ -35,27 +40,33 @@
 
     </v-layout>
 
+    <!-- Footer global -->
     <AppFooter />
   </v-app>
 </template>
 
 <script setup>
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuth } from '@/stores/auth'
+import { ROLES } from '@/constants/roles'
 import PlatformSidebar from '@/components/PlatformSidebar.vue'
 import AppFooter from '@/components/AppFooter.vue'
-import { useTenant } from '@/composables/useTenant'
-import { useAuth } from '@/stores/auth'
-import { computed } from 'vue'
-import { ROLES } from '@/constants/roles'
 
-const { tenant } = useTenant()
+const router = useRouter()
 const auth = useAuth()
 
-
 const roleName = computed(() => {
-  const map = {
+  const roleNames = {
+    [ROLES.SUPER_ADMIN]: 'Super Administrador',
     [ROLES.TENANT_ADMIN]: 'Administrador',
     [ROLES.STAFF]: 'Colaborador',
   }
-  return map[auth.role.value] || 'Usuario'
+  return roleNames[auth.role.value] || 'Usuario'
 })
+
+function exitImpersonation() {
+  auth.exitImpersonation()
+  router.push('/platform')
+}
 </script>

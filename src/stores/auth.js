@@ -52,6 +52,8 @@ const savedAuth = JSON.parse(localStorage.getItem('auth') || 'null')
 const state = reactive({
   isAuthenticated: savedAuth?.isAuthenticated || false,
   user: savedAuth?.user || null,
+  originalUser: null,
+  isImpersonating: false,
 })
 
 // Computeds derivados
@@ -87,6 +89,8 @@ export function useAuth() {
   function logout() {
     state.isAuthenticated = false
     state.user = null
+    state.originalUser = null
+    state.isImpersonating = false
     localStorage.removeItem('auth')
   }
 
@@ -109,6 +113,11 @@ export function useAuth() {
     return state.user?.role === requiredRole
   }
 
+  /**
+   * Verificar si el usuario tiene un permiso
+   * @param {string} permission - Permiso a verificar
+   * @returns {boolean}
+   */
   function hasPermission(permission) {
     if (!state.user) return false
     return ROLE_PERMISSIONS[state.user.role]?.includes(permission)
@@ -123,9 +132,13 @@ export function useAuth() {
     return roles.includes(state.user?.role)
   }
 
+  /**
+   * Impersonar un tenant
+   * @param {Object} options - { tenantId, role, name }
+   */
   function impersonate({ tenantId, role, name }) {
-  // Guardar usuario original
-    if (!state.originalUser) {
+    // Guardar usuario original solo si no está ya impersonando
+    if (!state.isImpersonating) {
       state.originalUser = { ...state.user }
     }
 
@@ -140,6 +153,9 @@ export function useAuth() {
     state.isImpersonating = true
   }
 
+  /**
+   * Salir del modo impersonación
+   */
   function exitImpersonation() {
     if (state.originalUser) {
       state.user = { ...state.originalUser }
@@ -166,6 +182,7 @@ export function useAuth() {
     hasAnyRole,
     hasPermission,
     impersonate,
+    exitImpersonation,
   }
 }
 
@@ -179,6 +196,8 @@ watch(
         JSON.stringify({
           isAuthenticated: newState.isAuthenticated,
           user: newState.user,
+          isImpersonating: newState.isImpersonating,
+          originalUser: newState.originalUser,
         })
       )
     } else {

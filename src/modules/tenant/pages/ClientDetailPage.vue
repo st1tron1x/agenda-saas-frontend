@@ -24,7 +24,7 @@
         <v-btn
           color="primary"
           prepend-icon="mdi-calendar-plus"
-          @click="newAppointment"
+          @click="openNewAppointment"
         >
           Nueva cita
         </v-btn>
@@ -87,17 +87,36 @@
 
     </v-row>
 
+    <!-- Modal para nueva cita -->
+    <AppointmentModal
+      v-model="showAppointmentModal"
+      :appointment="selectedAppointment"
+      @save="handleSaveAppointment"
+    />
+
+    <!-- Modal para editar cliente -->
+    <ClientFormModal
+      v-model="showEditModal"
+      :client="client"
+      @save="handleSaveClient"
+    />
+
   </v-container>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
+import AppointmentModal from '@/modules/tenant/components/AppointmentModal.vue'
+import ClientFormModal from '@/modules/tenant/components/ClientFormModal.vue'
 
-const route = useRoute()     
-const router = useRouter()
+const route = useRoute()
 
 const clientId = Number(route.params.id)
+
+const showAppointmentModal = ref(false)
+const showEditModal = ref(false)
+const selectedAppointment = ref(null)
 
 /* MOCK DATA (luego Django) */
 const client = ref({
@@ -128,14 +147,34 @@ const appointments = ref([
 ])
 
 function editClient() {
-  console.log('Editar cliente', clientId)
+  showEditModal.value = true
 }
 
-function newAppointment() {
-  router.push({
-    path: '/app/agenda',
-    query: { clientId },
-  })
+function openNewAppointment() {
+  selectedAppointment.value = {
+    clientId: clientId,
+    serviceId: null,
+    status: 'CONFIRMADA',
+    date: new Date().toISOString().split('T')[0],
+    time: '09:00',
+    duration: 60,
+    notes: '',
+  }
+  showAppointmentModal.value = true
+}
+
+function handleSaveAppointment(appointmentData) {
+  console.log('Guardar cita:', appointmentData)
+  // Aquí irá la llamada a la API
+  appointments.value.unshift(appointmentData)
+  showAppointmentModal.value = false
+}
+
+function handleSaveClient(clientData) {
+  console.log('Actualizar cliente:', clientData)
+  // Aquí irá la llamada a la API
+  Object.assign(client.value, clientData)
+  showEditModal.value = false
 }
 
 function statusColor(status) {
@@ -148,6 +187,7 @@ function statusColor(status) {
 
 onMounted(() => {
   console.log('Cargando cliente', clientId)
+  // Aquí se cargarían los datos del backend
 })
 </script>
 

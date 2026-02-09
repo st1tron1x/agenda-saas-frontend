@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="model" max-width="520" >
+  <v-dialog v-model="model" max-width="520">
     <v-card>
 
       <!-- HEADER -->
@@ -37,6 +37,7 @@
           </v-btn>
 
           <v-btn
+            v-if="form.clientId"
             variant="text"
             prepend-icon="mdi-account"
             @click="goToClient"
@@ -140,11 +141,6 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-function goToClient() {
-  if (!props.appointment?.clientId) return
-  router.push(`/app/clients/${props.appointment.clientId}`)
-}
-
 const props = defineProps({
   modelValue: Boolean,
   appointment: Object,
@@ -170,6 +166,25 @@ const form = ref({
   duration: null,
   notes: '',
 })
+
+/* MOCK DATA (luego backend Django) */
+const clients = [
+  { id: 1, name: 'Ana Gómez' },
+  { id: 2, name: 'María Ruiz' },
+]
+
+const services = [
+  { id: 1, name: 'Micropigmentación labios', duration: 120 },
+  { id: 2, name: 'Diseño de cejas', duration: 90 },
+]
+
+const statuses = [
+  'CONFIRMADA',
+  'PENDIENTE',
+  'CANCELADA',
+]
+
+// Watchers
 watch(
   () => form.value.serviceId,
   (serviceId) => {
@@ -180,30 +195,24 @@ watch(
   }
 )
 
-/* MOCK DATA (luego backend Django) */
-const clients = [
-  { id: 1, name: 'Ana Gómez' },
-  { id: 2, name: 'María Ruiz' },
-]
-
-const services = [
-  { id: 1, name: 'Micropigmentación labios' },
-  { id: 2, name: 'Diseño de cejas' },
-]
-
-const statuses = [
-  'CONFIRMADA',
-  'PENDIENTE',
-  'CANCELADA',
-]
-
 watch(
   () => props.appointment,
   (value) => {
-    if (value) form.value = { ...value }
+    if (value) {
+      form.value = { ...value }
+    } else {
+      resetForm()
+    }
   },
   { immediate: true }
 )
+
+// Methods
+function goToClient() {
+  if (!form.value.clientId) return
+  close()
+  router.push(`/app/clients/${form.value.clientId}`)
+}
 
 async function save() {
   const valid = await formRef.value?.validate()
@@ -220,5 +229,17 @@ function cancelAppointment() {
 
 function close() {
   emit('update:modelValue', false)
+}
+
+function resetForm() {
+  form.value = {
+    clientId: null,
+    serviceId: null,
+    status: 'CONFIRMADA',
+    date: '',
+    time: '',
+    duration: null,
+    notes: '',
+  }
 }
 </script>
