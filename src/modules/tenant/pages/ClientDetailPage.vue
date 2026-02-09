@@ -85,6 +85,9 @@
         </v-card>
       </v-col>
 
+      <ClientNotes />
+      <ClientPhotos />
+
     </v-row>
 
     <!-- Modal para nueva cita -->
@@ -109,6 +112,8 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import AppointmentModal from '@/modules/tenant/components/AppointmentModal.vue'
 import ClientFormModal from '@/modules/tenant/components/ClientFormModal.vue'
+import ClientNotes from '@/modules/tenant/components/ClientNotes.vue'
+import ClientPhotos from '@/modules/tenant/components/ClientPhotos.vue'
 
 const route = useRoute()
 

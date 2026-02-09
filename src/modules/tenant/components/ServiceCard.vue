@@ -1,6 +1,6 @@
 <template>
   <v-card
-    class="service-card pa-4"
+    class="service-card pa-4" hover
     :style="{ borderLeft: `6px solid ${service.color}` }"
   >
     <div class="d-flex justify-space-between align-center mb-2">

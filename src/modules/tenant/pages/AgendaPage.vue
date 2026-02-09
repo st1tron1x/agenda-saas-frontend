@@ -359,6 +359,25 @@ function handleCancel(appointment) {
   
   showModal.value = false
 }
+
+function saveAppointment(data) {
+  const event = {
+    id: Date.now(),
+    title: 'Nueva cita',
+    start: data.start,
+    end: data.end,
+    status: data.status,
+    extendedProps: {
+      clientId: data.clientId,
+      serviceId: data.serviceId,
+      notes: data.notes,
+    },
+  }
+
+  events.value.push(event)
+}
+
+
 </script>
 
 <style scoped>

@@ -32,6 +32,7 @@
             size="small"
             variant="text"
             prepend-icon="mdi-account-plus"
+            @click="showClientModal = true"
           >
             Nuevo cliente
           </v-btn>
@@ -133,11 +134,18 @@
 
     </v-card>
   </v-dialog>
+  <ClientFormModal
+    v-model="showClientModal"
+    @save="onClientCreated"
+  />
 </template>
 
 <script setup>
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import ClientFormModal from '@/modules/tenant/components/ClientFormModal.vue'
+
+const showClientModal = ref(false)
 
 const router = useRouter()
 
@@ -173,10 +181,18 @@ const clients = [
   { id: 2, name: 'María Ruiz' },
 ]
 
-const services = [
+/*const services = [
   { id: 1, name: 'Micropigmentación labios', duration: 120 },
   { id: 2, name: 'Diseño de cejas', duration: 90 },
+]*/
+const allServices = [
+  { id: 1, name: 'Micropigmentación labios', duration: 120, active: true },
+  { id: 2, name: 'Diseño de cejas', duration: 60, active: false },
 ]
+
+const services = computed(() =>
+  allServices.filter(s => s.active)
+)
 
 const statuses = [
   'CONFIRMADA',
@@ -218,9 +234,27 @@ async function save() {
   const valid = await formRef.value?.validate()
   if (!valid) return
 
-  emit('save', form.value)
+  const start = buildDateTime(form.value.date, form.value.time)
+  const end = calculateEnd(start, form.value.duration)
+
+  emit('save', {
+    ...form.value,
+    start,
+  end,
+  })
   close()
 }
+
+function buildDateTime(date, time) {
+  return new Date(`${date}T${time}`)
+}
+
+function calculateEnd(start, duration) {
+  const end = new Date(start)
+  end.setMinutes(end.getMinutes() + Number(duration))
+  return end
+}
+
 
 function cancelAppointment() {
   emit('cancel', props.appointment)
@@ -242,4 +276,15 @@ function resetForm() {
     notes: '',
   }
 }
+
+function onClientCreated(client) {
+  showClientModal.value = false
+
+  // seleccionar automáticamente el nuevo cliente
+  form.value.clientId = client.id
+
+  // (opcional) agregarlo al listado local
+  clients.push(client)
+}
+
 </script>
