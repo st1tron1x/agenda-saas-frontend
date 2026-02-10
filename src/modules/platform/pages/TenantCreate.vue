@@ -31,6 +31,7 @@
   updatedAt
 }
 -->
+<!--TenantCreate.vue-->
 <template>
   <div class="tenant-create pa-6">
     <!-- Header -->
@@ -45,7 +46,7 @@
       <!-- FORM -->
       <v-col cols="12" md="7">
         <v-card class="pa-6 rounded-xl">
-          <v-form>
+          <v-form ref="formRef" v-model="formValid">
             <v-text-field
               label="Nombre del negocio"
               variant="outlined"

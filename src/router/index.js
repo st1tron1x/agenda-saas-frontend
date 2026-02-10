@@ -9,6 +9,7 @@ import AppLayout from '@/layauts/AppLayout.vue'
 import Login from '@/modules/auth/pages/Login.vue'
 import ForgotPassword from '@/modules/auth/pages/ForgotPassword.vue'
 import ResetPassword from '@/modules/auth/pages/ResetPassword.vue'
+
 import TenantDashboard from '@/modules/tenant/pages/TenantDashboard.vue'
 import AgendaPage from '@/modules/tenant/pages/AgendaPage.vue'
 import ClientsPage from '@/modules/tenant/pages/ClientsPage.vue'
@@ -44,9 +45,26 @@ const routes = [
         component: () => import('@/modules/platform/pages/TenantsList.vue'),
       },
       {
-        path: 'tenants/create', // ✅ SIN /
+        path: 'tenants/create', 
         name: 'TenantCreate',
         component: () => import('@/modules/platform/pages/TenantCreate.vue'),
+      },
+      {
+        path: 'plans',
+        name: 'PlatformPlans',
+        component: () => import('@/modules/platform/pages/PlansPage.vue'),
+        meta: {
+          title: 'Gestión de Planes'
+        }
+      },
+      
+      {
+        path: 'support',
+        name: 'PlatformSupport',
+        component: () => import('@/modules/platform/pages/SupportPage.vue'),
+        meta: {
+          title: 'Centro de Soporte'
+        }
       },
     ],
   },
@@ -74,17 +92,36 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      return savedPosition
+    } else {
+      return { top: 0 }
+    }
+  }
 })
 
 router.beforeEach((to, from, next) => {
   const { state } = useAuth()
 
+  // Cambiar título de la página si está definido
+  if (to.meta.title) {
+    document.title = `${to.meta.title} - Mi Plataforma`
+  }
+  // Verificar autenticación
   if (to.meta.requiresAuth && !state.isAuthenticated) {
     return next('/login')
   }
-
+  // Verificar permisos
   if (to.meta.permission && !auth.hasPermission(to.meta.permission)) {
-    return next('/login') // O mejor: mostrar página 403
+    return next('/login') 
+  }
+
+  // Verificar rol (si es necesario)
+  if (to.meta.role && state.user?.role !== to.meta.role) {
+    // Opcional: redirigir a una página de "no autorizado"
+    console.warn('Usuario no tiene el rol necesario')
   }
 
   next()

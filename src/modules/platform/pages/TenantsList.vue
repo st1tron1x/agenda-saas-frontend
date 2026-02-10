@@ -1,19 +1,26 @@
 <template>
   <div>
     <div class="d-flex justify-space-between align-center mb-6">
-      <h1 class="text-h5 font-weight-bold">Tenants</h1>
+      <div>
+        <h1 class="text-h4 font-weight-bold mb-2">Gestión de Tenants</h1>
+        <p class="text-subtitle-1 text-medium-emphasis">
+          Administra todas las instancias de clientes del sistema
+        </p>
+      </div>
 
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="goToCreate">
-        Crear Tenant
+      <v-btn color="success" prepend-icon="mdi-plus" @click="goToCreate">
+        Nuevo Tenant
       </v-btn>
     </div>
 
-    <v-row>
+    <!--Cards-->
+       
+    <v-row class="mb-6">
       <v-col
         v-for="tenant in tenants"
         :key="tenant.id"
-        cols="12"
-        md="4"
+        cols="12" sm="6"
+        md="3"
       >
         <v-card class="tenant-card">
           <v-card-title class="d-flex align-center">
@@ -58,6 +65,7 @@
       </v-col>
     </v-row>
   </div>
+  
 </template>
 
 <script setup>
