@@ -84,7 +84,8 @@ const routes = [
       { path: 'agenda', component: AgendaPage, meta: {requiresAuth: true}},
       { path: 'clients', component: ()=>import('@/modules/tenant/pages/ClientsPage.vue')},
       { path: 'clients/:id', component: () => import('@/modules/tenant/pages/ClientDetailPage.vue'), props: true,},
-      { path: 'services', component: () => import('@/modules/tenant/pages/ServicesPage.vue')}
+      { path: 'services', component: () => import('@/modules/tenant/pages/ServicesPage.vue')},
+      { path: 'users', component: () => import('@/modules/tenant/pages/UsersPage.vue'),}
     ],
   } 
 ]
