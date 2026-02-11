@@ -104,7 +104,7 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const { state } = useAuth()
+  const { state, hasPermission } = useAuth()
 
   // Cambiar título de la página si está definido
   if (to.meta.title) {
@@ -115,7 +115,7 @@ router.beforeEach((to, from, next) => {
     return next('/login')
   }
   // Verificar permisos
-  if (to.meta.permission && !auth.hasPermission(to.meta.permission)) {
+  if (to.meta.permission && !hasPermission(to.meta.permission)) {
     return next('/login') 
   }
 

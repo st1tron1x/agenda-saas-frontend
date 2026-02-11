@@ -468,6 +468,7 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useNotification } from '@/composables/useNotification'
+import { api } from '@/services/api'
 
 const router = useRouter()
 const { notify } = useNotification()
@@ -563,6 +564,55 @@ const rules = {
   hexColor: v => !v || /^#[0-9A-F]{6}$/i.test(v) || 'Color hex inválido (ej: #6366F1)',
 }
 
+function normalizeTenantPayload(payload) {
+  const normalized = {
+    ...payload,
+    subdomain: payload.subdomain?.trim().toLowerCase(),
+    business_name: payload.business_name?.trim(),
+    owner_name: payload.owner_name?.trim(),
+    owner_email: payload.owner_email?.trim().toLowerCase(),
+    owner_phone: payload.owner_phone?.trim() || null,
+    business_type: payload.business_type || null,
+    trial_end_date: payload.trial_end_date || null,
+    address: payload.address?.trim() || null,
+  }
+
+  return {
+    ...normalized,
+    provisioning: {
+      tenancy_mode: 'schema',
+      auto_create_schema: true,
+      run_seed: true,
+    },
+    db_function_payload: {
+      p_business_name: normalized.business_name,
+      p_subdomain: normalized.subdomain,
+      p_owner_name: normalized.owner_name,
+      p_owner_email: normalized.owner_email,
+      p_owner_phone: normalized.owner_phone,
+      p_plan_id: normalized.plan_id,
+      p_primary_color: normalized.brand_colors.primary,
+      p_secondary_color: normalized.brand_colors.secondary,
+      p_business_type: normalized.business_type,
+    },
+  }
+}
+
+function getErrorMessage(result, fallback) {
+  if (!result) return fallback
+  if (result.error) return result.error
+  if (result.errors && typeof result.errors === 'object') {
+    const firstFieldError = Object.values(result.errors)[0]
+    if (Array.isArray(firstFieldError)) {
+      return firstFieldError[0]
+    }
+    if (typeof firstFieldError === 'string') {
+      return firstFieldError
+    }
+  }
+  return fallback
+}
+
 // Methods
 function applyColorPreset(preset) {
   form.value.brand_colors.primary = preset.primary
@@ -602,15 +652,29 @@ async function loadPlans() {
     // availablePlans.value = response.data
     
     // Mock data
+    const response = await api.get('/platform/plans')
+
+    if (response.success && Array.isArray(response.data)) {
+      availablePlans.value = response.data
+      return
+    }
+
+    // Fallback controlado para ambiente local sin backend
     availablePlans.value = [
       { id: 1, name: 'Básico' },
       { id: 2, name: 'Profesional' },
       { id: 3, name: 'Empresarial' },
     ]
   } catch (error) {
+    availablePlans.value = [
+      { id: 1, name: 'Básico' },
+      { id: 2, name: 'Profesional' },
+      { id: 3, name: 'Empresarial' },
+    ]
+
     notify({
-      type: 'error',
-      message: 'Error al cargar planes',
+      type: 'warning',
+      message: 'No se pudo cargar planes desde API. Usando catálogo local temporal.',
     })
   }
 }
@@ -624,22 +688,34 @@ async function createTenant() {
     // TODO: Replace with API call
     // await api.post('/platform/tenants', form.value)
     
-    console.log('Datos del tenant a crear:', form.value)
+    //console.log('Datos del tenant a crear:', form.value)
     
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
+    //await new Promise(resolve => setTimeout(resolve, 1500))
+    const payload = normalizeTenantPayload(form.value)
+    const result = await api.post('/platform/tenants', payload)
+
+    if (!result.success) {
+      throw new Error(getErrorMessage(result, 'Error al crear tenant'))
+    }
+
+    const tenantData = result.data || {}
+    const schemaName = tenantData.schema_name || tenantData.schema || 'pendiente'
+    const adminPassword = tenantData.admin_password
+
     notify({
       type: 'success',
-      message: 'Tenant creado exitosamente',
+      message: adminPassword
+        ? `Tenant creado (${schemaName}). Contraseña temporal admin: ${adminPassword}`
+        : `Tenant creado (${schemaName}) y schema provisionado exitosamente`,
     })
     
     // Redirect to tenants list
-    router.push({ name: 'platform-tenants' })
+    router.push({ name: 'TenantsList' })
   } catch (error) {
     notify({
       type: 'error',
-      message: 'Error al crear tenant',
+      message: error.message ||'Error al crear tenant',
     })
   } finally {
     saving.value = false
@@ -647,7 +723,7 @@ async function createTenant() {
 }
 
 function goBack() {
-  router.push({ name: 'platform-tenants' })
+  router.push({ name: 'TenanList' })
 }
 
 // Lifecycle
