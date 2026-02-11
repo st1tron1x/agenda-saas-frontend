@@ -80,7 +80,7 @@ const routes = [
       },
       { path: 'dashboard', component: ()=> import('@/modules/tenant/pages/TenantDashboard.vue'),},
       { path: 'staff', component: () => import('@/modules/tenant/pages/StaffDashboard.vue'), meta:{role:ROLES.STAFF,}},
-      { path: 'tv', component: () => import('@/modules/tenant/pages/TvDashboard.vue') },
+      { path: 'tv', component: () => import('@/modules/tenant/pages/TvDashboard.vue'), meta:{fullscreen: true}},
       { path: 'agenda', component: AgendaPage, meta: {requiresAuth: true}},
       { path: 'clients', component: ()=>import('@/modules/tenant/pages/ClientsPage.vue')},
       { path: 'clients/:id', component: () => import('@/modules/tenant/pages/ClientDetailPage.vue'), props: true,},

@@ -3,12 +3,13 @@
     <v-layout>
 
       <!-- Sidebar -->
-      <PlatformSidebar />
+      <PlatformSidebar v-if="!isFullscreenRoute" />
 
       <!-- Main -->
       <v-main>
         <!-- Top bar -->
         <v-app-bar
+          v-if="!isFullscreenRoute"
           flat
           color="white"
           height="64"
@@ -33,7 +34,10 @@
         </v-app-bar>
 
         <!-- Page content -->
-        <v-container fluid class="pa-6">
+        <v-container
+          fluid
+          :class="isFullscreenRoute ? 'pa-0 fill-height' : 'pa-6'"
+        >
           <router-view />
         </v-container>
       </v-main>
@@ -41,20 +45,23 @@
     </v-layout>
 
     <!-- Footer global -->
-    <AppFooter />
+    <AppFooter v-if="!isFullscreenRoute" />
   </v-app>
 </template>
 
 <script setup>
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/stores/auth'
 import { ROLES } from '@/constants/roles'
 import PlatformSidebar from '@/components/PlatformSidebar.vue'
 import AppFooter from '@/components/AppFooter.vue'
 
 const router = useRouter()
+const route = useRoute()
 const auth = useAuth()
+
+const isFullscreenRoute = computed(() => Boolean(route.meta.fullscreen))
 
 const roleName = computed(() => {
   const roleNames = {
