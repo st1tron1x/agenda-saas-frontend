@@ -1,4 +1,4 @@
-//src/constants/permissions.js
+/*//src/constants/permissions.js
 export const PERMISSIONS = {
   // Plataforma
   TENANT_VIEW: 'TENANT_VIEW',
@@ -27,4 +27,33 @@ export const PERMISSIONS = {
 
   // Dashboard
   DASHBOARD_VIEW: 'DASHBOARD_VIEW',
-}
+}*/
+export const PERMISSIONS = [
+  {
+    key: 'agenda',
+    label: 'Agenda',
+    children: [
+      { key: 'agenda.view', label: 'Ver' },
+      { key: 'agenda.create', label: 'Crear' },
+      { key: 'agenda.edit', label: 'Editar' },
+      { key: 'agenda.cancel', label: 'Cancelar' },
+    ],
+  },
+  {
+    key: 'clients',
+    label: 'Clientes',
+    children: [
+      { key: 'clients.view', label: 'Ver' },
+      { key: 'clients.create', label: 'Crear' },
+      { key: 'clients.edit', label: 'Editar' },
+    ],
+  },
+  {
+    key: 'services',
+    label: 'Servicios',
+    children: [
+      { key: 'services.view', label: 'Ver' },
+      { key: 'services.manage', label: 'Gestionar' },
+    ],
+  },
+]

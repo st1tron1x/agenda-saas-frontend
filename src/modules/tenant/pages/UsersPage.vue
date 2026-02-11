@@ -19,6 +19,11 @@
       @permissions="openPermissions"
     />
 
+    <UserPermissionsModal
+      v-model="permissionsModalOpen"
+      :user="selectedUser"
+    />
+
     <UserFormModal
       v-model="modalOpen"
       :user="selectedUser"
@@ -31,6 +36,7 @@
 import { ref } from 'vue'
 import UserTable from '@/modules/tenant/components/UserTable.vue'
 import UserFormModal from '@/modules/tenant/components/UserFormModal.vue'
+import UserPermissionsModal from '../components/UserPermissionsModal.vue'
 
 const users = ref([
   {
@@ -49,6 +55,7 @@ const users = ref([
   },
 ])
 
+const permissionsModalOpen = ref(false)
 const modalOpen = ref(false)
 const selectedUser = ref(null)
 
@@ -63,7 +70,8 @@ function openEdit(user) {
 }
 
 function openPermissions(user) {
-  console.log('Permisos usuario', user.id)
+  selectedUser.value = user
+  permissionsModalOpen.value = true
 }
 
 function saveUser(data) {
