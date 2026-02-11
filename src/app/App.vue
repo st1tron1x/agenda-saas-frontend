@@ -6,4 +6,5 @@
 </template>
 
 <script setup>
+import NotificationContainer from '../../src/components/ui/NotificationContainer.vue'
 </script>
