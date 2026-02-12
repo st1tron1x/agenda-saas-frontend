@@ -149,7 +149,7 @@ const form = reactive({ ...defaultForm })
 
 const rules = {
   required: value => !!value || 'Campo obligatorio',
-  email: value => /.@.\../.test(value) || 'Email inválido',
+  email: value => /.+@.+\..+/.test(value) || 'Email inválido',
 }
 
 watch(

@@ -723,7 +723,7 @@ async function createTenant() {
 }
 
 function goBack() {
-  router.push({ name: 'TenanList' })
+  router.push({ name: 'TenantsList' })
 }
 
 // Lifecycle

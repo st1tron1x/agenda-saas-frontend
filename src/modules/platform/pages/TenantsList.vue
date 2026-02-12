@@ -205,12 +205,14 @@
             <v-btn 
               variant="text" 
               size="small"
+              @click="editTenant(tenant)"
             >
               Editar
             </v-btn>
             <v-btn 
               variant="text" 
               size="small"
+              @click="openSupport(tenant)"
             >
               Soporte
             </v-btn>
@@ -219,7 +221,7 @@
             <v-btn 
               variant="text" 
               size="small" 
-              color="sucess" 
+              color="primary" 
               @click="enterAsTenant(tenant)"
             >
               Entrar
@@ -227,7 +229,8 @@
             <v-btn
               variant="text"
               size="small"
-              color="primary"
+              color="error"
+              @click="toggleTenantStatus(tenant)"
             >
               {{ tenant.active ? 'Pausar' : 'Activar' }}
             </v-btn>
@@ -321,6 +324,20 @@ function enterAsTenant(tenant) {
   })
 
   router.push('/app')
+}
+function editTenant(tenant) {
+  router.push({ name: 'TenantEdit', params: { id: tenant.id } })
+}
+
+function openSupport(tenant) {
+  router.push({
+    path: '/platform/support',
+    query: { tenantId: tenant.id },
+  })
+}
+
+function toggleTenantStatus(tenant) {
+  tenant.active = !tenant.active
 }
 </script>
 

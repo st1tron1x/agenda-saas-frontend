@@ -1,40 +1,35 @@
 <template>
   <v-navigation-drawer
-    app
-    permanent
+    :model-value="modelValue"
+    @update:model-value="emit('update:modelValue', $event)"
+    :permanent="!isMobile"
+    :temporary="isMobile"
+    :app="!isMobile"
     width="260"
     class="sidebar"
     :style="sidebarStyles"
   >
-    <!-- Branding -->
-    <!--<div class="pa-4 text-center">
-      <h3 class="text-white font-weight-bold">
-        {{ tenant.name }}
-      </h3>
+    <!--Branding-->
+    <div class="pa-4 text-center branding">
+      <router-link
+        :to="homeRoute"
+        class="branding-link"
+      >
+        <v-img
+          :src="tenant.logo?.src"
+          max-width="140"
+          class="mx-auto mb-2"
+          contain
+        />
+        <h3 class="text-white font-weight-bold">
+          {{ tenant.name }}
+        </h3>
+      </router-link>
+
       <p class="text-caption text-grey-lighten-1 mt-1">
         {{ roleName }}
       </p>
-    </div>-->
-    <div class="pa-4 text-center branding">
-    <router-link
-      :to="homeRoute"
-      class="branding-link"
-    >
-      <v-img
-        :src="tenant.logo?.src"
-        max-width="140"
-        class="mx-auto mb-2"
-        contain
-      />
-      <h3 class="text-white font-weight-bold">
-        {{ tenant.name }}
-      </h3>
-    </router-link>
-
-    <p class="text-caption text-grey-lighten-1 mt-1">
-      {{ roleName }}
-    </p>
-  </div>
+    </div>
 
     <v-divider class="border-opacity-25" />
 
@@ -48,6 +43,7 @@
         router
         active-class="menu-active"
         class="menu-item"
+        @click="handleMenuClick"
       >
         <template #prepend v-if="item.icon">
           <v-icon :icon="item.icon" size="small" class="mr-3" />
@@ -94,20 +90,33 @@
 
 <script setup>
 import { computed } from 'vue'
+import { useDisplay } from 'vuetify'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/stores/auth'
 import { SIDEBAR_MENU } from '@/config/sidebar.menu'
 import { useTenant } from '@/composables/useTenant'
 import { ROLES } from '@/constants/roles'
 
+const props = defineProps({
+  modelValue: {
+    type: Boolean,
+    default: true,
+  },
+})
+
+const emit = defineEmits(['update:modelValue'])
+
 const router = useRouter()
 const auth = useAuth()
 const { tenant } = useTenant()
+const { mdAndDown } = useDisplay()
+
+const isMobile = computed(() => mdAndDown.value)
 
 // Menú dinámico según rol
 const menu = computed(() => {
   const role = auth.role.value
-  if (!role) return[]
+  if (!role) return []
 
   const items = SIDEBAR_MENU[role] || []
 
@@ -126,6 +135,7 @@ const roleName = computed(() => {
   }
   return roleNames[auth.role.value] || 'Usuario'
 })
+
 const homeRoute = computed(() => {
   return auth.isSuperAdmin.value ? '/platform' : '/app'
 })
@@ -147,6 +157,12 @@ const userInitials = computed(() => {
 const sidebarStyles = computed(() => ({
   background: tenant.gradient || 'linear-gradient(180deg, #0f172a, #1e293b)',
 }))
+
+function handleMenuClick() {
+  if (isMobile.value) {
+    emit('update:modelValue', false)
+  }
+}
 
 /**
  * Cerrar sesión
@@ -196,4 +212,5 @@ function handleLogout() {
     transform: translateX(0);
   }
 }
+
 </style>

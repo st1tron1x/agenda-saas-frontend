@@ -1,9 +1,11 @@
 <template>
   <v-app>
     <v-layout>
-
       <!-- Sidebar -->
-      <PlatformSidebar v-if="!isFullscreenRoute" />
+      <PlatformSidebar
+        v-if="!isFullscreenRoute"
+        v-model="drawerOpen"
+      />
 
       <!-- Main -->
       <v-main>
@@ -13,10 +15,15 @@
           flat
           color="white"
           height="64"
-          class="px-6"
+          :class="isMobile ? 'px-2' : 'px-6'"
         >
+          <v-app-bar-nav-icon
+            v-if="isMobile"
+            @click="drawerOpen = !drawerOpen"
+          />
+
           <v-spacer />
-          
+
           <!-- Indicador de impersonación -->
           <v-chip
             v-if="auth.state.isImpersonating"
@@ -24,10 +31,10 @@
             variant="flat"
             size="small"
             prepend-icon="mdi-account-switch"
-            class="mr-4"
+            :class="isMobile ? 'mr-2' : 'mr-4'"
             @click="exitImpersonation"
           >
-            Modo impersonación (clic para salir)
+            {{ isMobile ? 'Salir' : 'Modo impersonación (clic para salir)' }}
           </v-chip>
 
           <span class="text-caption">{{ roleName }}</span>
@@ -36,12 +43,11 @@
         <!-- Page content -->
         <v-container
           fluid
-          :class="isFullscreenRoute ? 'pa-0 fill-height' : 'pa-6'"
+          :class="containerClass"
         >
           <router-view />
         </v-container>
       </v-main>
-
     </v-layout>
 
     <!-- Footer global -->
@@ -50,7 +56,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useDisplay } from 'vuetify'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuth } from '@/stores/auth'
 import { ROLES } from '@/constants/roles'
@@ -61,7 +68,25 @@ const router = useRouter()
 const route = useRoute()
 const auth = useAuth()
 
+const { mdAndDown } = useDisplay()
+const isMobile = computed(() => mdAndDown.value)
+
 const isFullscreenRoute = computed(() => Boolean(route.meta.fullscreen))
+
+const drawerOpen = ref(!isMobile.value)
+
+watch(
+  [isMobile, isFullscreenRoute],
+  ([mobile, fullscreen]) => {
+    drawerOpen.value = fullscreen ? false : !mobile
+  },
+  { immediate: true }
+)
+
+const containerClass = computed(() => {
+  if (isFullscreenRoute.value) return 'pa-0 fill-height'
+  return isMobile.value ? 'pa-3' : 'pa-6'
+})
 
 const roleName = computed(() => {
   const roleNames = {

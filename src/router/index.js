@@ -50,6 +50,12 @@ const routes = [
         component: () => import('@/modules/platform/pages/TenantCreate.vue'),
       },
       {
+        path: 'tenants/:id/edit',
+        name: 'TenantEdit',
+        component: () => import('@/modules/platform/pages/TenantEdit.vue'),
+        props: true,
+      },
+      {
         path: 'plans',
         name: 'PlatformPlans',
         component: () => import('@/modules/platform/pages/PlansPage.vue'),
