@@ -66,6 +66,14 @@ const routes = [
           title: 'Centro de Soporte'
         }
       },
+      {
+        path: 'users',
+        name: 'PlatformUsers',
+        component: () => import('@/modules/platform/pages/PlatformUsersPage.vue'),
+        meta: {
+          title: 'Usuarios de plataforma'
+        }
+      },
     ],
   },
   
