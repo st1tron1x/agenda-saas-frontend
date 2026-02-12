@@ -1,12 +1,11 @@
 <template>
   <v-dialog
     v-model="model"
-    max-width="560"
+    max-width="640"
     persistent
     @keydown.esc="close"
   >
     <v-card>
-
       <!-- HEADER -->
       <v-card-title class="d-flex justify-space-between align-center">
         <span class="font-weight-bold">
@@ -23,7 +22,6 @@
       <!-- BODY -->
       <v-card-text class="pt-4">
         <v-form ref="formRef">
-
           <v-text-field
             label="Nombre completo"
             v-model="form.name"
@@ -62,15 +60,25 @@
           />
 
           <!-- FUTURO -->
-          <v-alert
-            type="info"
-            variant="tonal"
-            density="compact"
-            class="mt-3"
-          >
-            Próximamente: historial, fotos antes/después y documentos
-          </v-alert>
-
+          <v-card variant="tonal" color="info" class="mt-3 pa-3">
+            <div class="d-flex justify-space-between align-center flex-wrap ga-2">
+              <div>
+                <div class="font-weight-medium">Documentos y consentimientos</div>
+                <div class="text-caption">
+                  Carga archivos del cliente y genera reportes internos (consentimiento informado, evolución, etc.)
+                </div>
+              </div>
+              <v-btn
+                v-if="isEdit"
+                color="info"
+                variant="outlined"
+                prepend-icon="mdi-file-document-edit-outline"
+                @click="openDocuments"
+              >
+                Gestionar documentos
+              </v-btn>
+            </div>
+          </v-card>
         </v-form>
       </v-card-text>
 
@@ -86,20 +94,19 @@
           Guardar
         </v-btn>
       </v-card-actions>
-
     </v-card>
   </v-dialog>
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
   modelValue: Boolean,
   client: Object,
 })
 
-const emit = defineEmits(['update:modelValue', 'save'])
+const emit = defineEmits(['update:modelValue', 'save', 'manage-documents'])
 
 const model = computed({
   get: () => props.modelValue,
@@ -121,7 +128,7 @@ const form = ref({
 
 watch(
   () => props.client,
-  (value) => {
+  value => {
     if (value) {
       form.value = { ...value }
     } else {
@@ -130,6 +137,12 @@ watch(
   },
   { immediate: true }
 )
+
+function openDocuments() {
+  if (!props.client?.id) return
+  emit('manage-documents', props.client)
+  close()
+}
 
 function save() {
   emit('save', form.value)
@@ -145,6 +158,8 @@ function reset() {
     name: '',
     phone: '',
     email: '',
+    dir: '',
+    city: '',
     notes: '',
   }
 }

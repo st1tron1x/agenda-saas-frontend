@@ -9,7 +9,7 @@
         <v-text-field
           v-model="email"
           :rules="[v => !!v || 'Campo requerido', v => /.+@.+/.test(v) || 'Email inválido']"
-          label="Correo o usuario"
+          label="Correo"
           variant="outlined"
         />
 
@@ -20,11 +20,22 @@
           variant="outlined"
         />
 
+        <v-alert
+          v-if="errorMessage"
+          type="error"
+          variant="tonal"
+          density="compact"
+          class="mb-3"
+        >
+          {{ errorMessage }}
+        </v-alert>
+
         <v-btn
           type="submit"
           block
           color="primary"
-          class="mt-4"
+          class="mt-2"
+          :loading="loading"
         >
           Entrar
         </v-btn>
@@ -47,14 +58,18 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '@/stores/auth'
 import { ROLES } from '@/constants/roles'
+import { authService } from '@/services/auth.service'
 
 const email = ref('')
 const password = ref('')
 
+const loading = ref(false)
+const errorMessage = ref('')
+
 const auth = useAuth()
 const router = useRouter()
 
-function submit() {
+/*function submit() {
  // 🔐 MOCK LOGIN (luego será API)
   auth.login({
     id: 1,
@@ -63,8 +78,32 @@ function submit() {
     role: ROLES.SUPER_ADMIN,
     tenantId: null,
   })
-  router.push('/platform')
+  router.push('/platform')*/
+function redirectByRole(role) {
+  if (role === ROLES.SUPER_ADMIN) {
+    router.push('/platform')
+    return
+  }
 
+  if (role === ROLES.STAFF) {
+    router.push('/app/staff')
+    return
+  }
+
+  router.push('/app')
+}
+
+async function submit() {
+  errorMessage.value = ''
+  loading.value = true
+
+  try {
+    const result = await authService.login(email.value, password.value)
+
+    if (!result.success) {
+      errorMessage.value = result.error || 'No se pudo iniciar sesión'
+      return
+    }
  /* auth.login({
     id: 2,
     name: 'Laura',
@@ -73,5 +112,13 @@ function submit() {
     tenantId: null,
   })
   router.push('/app/staff')*/
+  auth.login(result.user)
+    redirectByRole(result.user.role)
+  } catch (error) {
+    errorMessage.value = error.message || 'Error inesperado al iniciar sesión'
+  } finally {
+    loading.value = false
+  }
+
 }
 </script>

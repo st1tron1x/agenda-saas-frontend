@@ -23,6 +23,8 @@ const props = defineProps({
   client: Object,
 })
 
+defineEmits(['select'])
+
 const initials = computed(() =>
   props.client.name
     .split(' ')

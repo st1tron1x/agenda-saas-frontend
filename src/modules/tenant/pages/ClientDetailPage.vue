@@ -22,6 +22,14 @@
         </v-btn>
 
         <v-btn
+          variant="outlined"
+          prepend-icon="mdi-file-document"
+          @click="openDocuments"
+        >
+          Documentos
+        </v-btn>
+
+        <v-btn
           color="primary"
           prepend-icon="mdi-calendar-plus"
           @click="openNewAppointment"
@@ -33,7 +41,6 @@
 
     <!-- CONTENT -->
     <v-row>
-
       <!-- INFO CLIENTE -->
       <v-col cols="12" md="4">
         <v-card class="pa-4">
@@ -87,7 +94,6 @@
 
       <ClientNotes />
       <ClientPhotos />
-
     </v-row>
 
     <!-- Modal para nueva cita -->
@@ -102,22 +108,23 @@
       v-model="showEditModal"
       :client="client"
       @save="handleSaveClient"
+      @manage-documents="openDocuments"
     />
-
   </v-container>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import AppointmentModal from '@/modules/tenant/components/AppointmentModal.vue'
 import ClientFormModal from '@/modules/tenant/components/ClientFormModal.vue'
 import ClientNotes from '@/modules/tenant/components/ClientNotes.vue'
 import ClientPhotos from '@/modules/tenant/components/ClientPhotos.vue'
 
 const route = useRoute()
+const router = useRouter()
 
-const clientId = Number(route.params.id)
+const clientId = route.params.id
 
 const showAppointmentModal = ref(false)
 const showEditModal = ref(false)
@@ -166,6 +173,10 @@ function openNewAppointment() {
     notes: '',
   }
   showAppointmentModal.value = true
+}
+
+function openDocuments() {
+  router.push(`/app/clients/${clientId}/documents`)
 }
 
 function handleSaveAppointment(appointmentData) {
