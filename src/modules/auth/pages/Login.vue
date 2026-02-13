@@ -112,7 +112,7 @@ async function submit() {
     tenantId: null,
   })
   router.push('/app/staff')*/
-  auth.login(result.user)
+  auth.login({ ...result.user, token: result.token, refreshToken: result.refreshToken })
     redirectByRole(result.user.role)
   } catch (error) {
     errorMessage.value = error.message || 'Error inesperado al iniciar sesión'

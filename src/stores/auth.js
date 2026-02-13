@@ -27,7 +27,7 @@ const isStaff = computed(() => state.user?.role === ROLES.STAFF)
 export function useAuth() {
   /**
    * Login de usuario
-   * @param {Object} userData - { id, name, email, role, tenantId }
+   * @param {Object} userData - { id, name, email, role, tenantId, token, refreshToken }
    */
   function login(userData) {
     state.isAuthenticated = true
@@ -37,6 +37,8 @@ export function useAuth() {
       email: userData.email,
       role: userData.role,
       tenantId: userData.tenantId || null,
+      token: userData.token || null,
+      refreshToken: userData.refreshToken || null,
     }
   }
 
@@ -146,7 +148,7 @@ export function useAuth() {
 // Persistencia automática en localStorage
 watch(
   () => state,
-  (newState) => {
+  newState => {
     if (newState.isAuthenticated) {
       localStorage.setItem(
         'auth',

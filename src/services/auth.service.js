@@ -1,15 +1,34 @@
 // src/services/auth.service.js
 import { api } from './api'
 
-/**
- * Servicio de autenticación
- * Integra con el backend Django/FastAPI
- */
+function normalizeLoginResponse(data = {}) {
+  const user = data.user
+  const accessToken = data.access_token || data.token || null
+  const refreshToken = data.refresh_token || null
+
+  if (!user || !accessToken) {
+    return {
+      success: false,
+      error: 'El backend respondió 200, pero no devolvió user + access_token. Implementa el contrato de /api/auth/login.',
+    }
+  }
+
+  return {
+    success: true,
+    user: {
+      ...user,
+      tenantId: user.tenant_id ?? user.tenantId ?? null,
+    },
+    token: accessToken,
+    refreshToken,
+  }
+}
+
 export const authService = {
   /**
    * Login de usuario
-   * @param {string} email 
-   * @param {string} password 
+   * @param {string} email
+   * @param {string} password
    * @returns {Promise<Object>}
    */
   async login(email, password) {
@@ -18,19 +37,16 @@ export const authService = {
       password,
     })
     
-    if (response.success) {
+    if (!response.success) {
       return {
-        success: true,
-        user: response.data.user,
-        token: response.data.token,
+          success: false,
+          error: response.error || 'No se pudo iniciar sesion', 
+        }
       }
-    }
+
+      return normalizeLoginResponse(response.data)
+    },
     
-    return {
-      success: false,
-      error: response.error,
-    }
-  },
 
   /**
    * Logout de usuario
@@ -62,7 +78,7 @@ export const authService = {
 
   /**
    * Recuperar contraseña
-   * @param {string} email 
+   * @param {string} email
    * @returns {Promise<Object>}
    */
   async forgotPassword(email) {
@@ -71,8 +87,8 @@ export const authService = {
 
   /**
    * Resetear contraseña
-   * @param {string} token 
-   * @param {string} password 
+   * @param {string} token
+   * @param {string} password
    * @returns {Promise<Object>}
    */
   async resetPassword(token, password) {
@@ -84,7 +100,7 @@ export const authService = {
 
   /**
    * Refrescar token
-   * @param {string} refreshToken 
+   * @param {string} refreshToken
    * @returns {Promise<Object>}
    */
   async refreshToken(refreshToken) {
