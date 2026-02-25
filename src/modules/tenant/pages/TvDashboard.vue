@@ -416,28 +416,22 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { useTvDashboard } from '@/composables/useTvDashboard'
 
 const route = useRoute()
+const tenantId = route.params.tenantId || route.query.tenantId || 'demo'
+
+const {
+  tenantInfo,
+  currentCalling,
+  inService,
+  waitingList,
+  upcomingAppointments,
+  dailyStats,
+} = useTvDashboard(tenantId)
 
 const currentTime = ref('')
 const currentDate = ref('')
-const tenantInfo = ref({
-  business_name: 'Spa & Wellness Center',
-  tagline: 'Tu bienestar es nuestra prioridad',
-  primary_color: '#6366F1',
-  secondary_color: '#EC4899',
-  wifi_name: 'Spa_WiFi',
-})
-
-const currentCalling = ref(null)
-const inService = ref([])
-const waitingList = ref([])
-const upcomingAppointments = ref([])
-const dailyStats = ref({
-  completed: 0,
-  pending: 0,
-  waiting: 0,
-})
 
 const pendingCallTimeouts = []
 
@@ -512,121 +506,6 @@ function statusStyle(status) {
   }
 }
 
-async function loadTenantInfo() {
-  const tenantId = route.params.tenantId || route.query.tenantId || 'demo'
-
-  try {
-    // TODO: Replace with API call
-    // const response = await api.get(`/tenant/${tenantId}/display-info`)
-    // tenantInfo.value = response.data
-    console.debug('Loading tenant:', tenantId)
-  } catch (error) {
-    console.error('Error loading tenant info:', error)
-  }
-}
-
-async function loadAppointmentsData() {
-  try {
-    // TODO: Replace with API call
-    // const response = await api.get('/tenant/appointments/tv-display')
-    // currentCalling.value = response.data.calling
-    // inService.value = response.data.in_service
-    // waitingList.value = response.data.waiting
-    // upcomingAppointments.value = response.data.upcoming
-    // dailyStats.value = response.data.stats
-
-    currentCalling.value = {
-      id: 1,
-      client_name: 'María González',
-      service_name: 'Masaje Relajante',
-      professional_name: 'Laura Martínez',
-      room: '3',
-    }
-
-    inService.value = [
-      {
-        id: 2,
-        client_name: 'Carlos Ruiz',
-        service_name: 'Corte + Barba',
-        professional_name: 'Pedro López',
-        start_time: '14:00',
-      },
-      {
-        id: 3,
-        client_name: 'Ana Silva',
-        service_name: 'Manicure',
-        professional_name: 'Carmen Díaz',
-        start_time: '14:15',
-      },
-    ]
-
-    waitingList.value = [
-      {
-        id: 4,
-        client_name: 'Roberto Pérez',
-        service_name: 'Facial Profundo',
-        professional_name: 'Laura Martínez',
-        start_time: '14:30',
-        duration: 60,
-        wait_time: '5 min',
-        status: 'ready',
-      },
-      {
-        id: 5,
-        client_name: 'Lucía Fernández',
-        service_name: 'Pedicure',
-        professional_name: 'Carmen Díaz',
-        start_time: '14:45',
-        duration: 45,
-        wait_time: '20 min',
-        status: 'waiting',
-      },
-      {
-        id: 6,
-        client_name: 'Jorge Martín',
-        service_name: 'Masaje Deportivo',
-        professional_name: 'Pedro López',
-        start_time: '15:00',
-        duration: 90,
-        wait_time: '35 min',
-        status: 'waiting',
-      },
-    ]
-
-    upcomingAppointments.value = [
-      {
-        id: 8,
-        client_name: 'Miguel Ángel',
-        service_name: 'Corte Clásico',
-        professional_name: 'Pedro López',
-        start_time: '16:00',
-      },
-      {
-        id: 9,
-        client_name: 'Elena Castro',
-        service_name: 'Tratamiento Capilar',
-        professional_name: 'Carmen Díaz',
-        start_time: '16:15',
-      },
-      {
-        id: 10,
-        client_name: 'David Romero',
-        service_name: 'Masaje Relajante',
-        professional_name: 'Laura Martínez',
-        start_time: '16:30',
-      },
-    ]
-
-    dailyStats.value = {
-      completed: 12,
-      pending: 9,
-      waiting: 4,
-    }
-  } catch (error) {
-    console.error('Error loading appointments:', error)
-  }
-}
-
 function simulateCall() {
   const callingInterval = setInterval(() => {
     if (waitingList.value.length > 0 && !currentCalling.value) {
@@ -664,10 +543,10 @@ onMounted(() => {
   updateDateTime()
   dateTimeInterval = setInterval(updateDateTime, 1000)
 
-  loadTenantInfo()
-  loadAppointmentsData()
+  //loadTenantInfo()
+  //loadAppointmentsData()
 
-  dataRefreshInterval = setInterval(loadAppointmentsData, 30000)
+  //dataRefreshInterval = setInterval(loadAppointmentsData, 30000)
   callingSimulation = simulateCall()
 })
 

@@ -2,8 +2,10 @@
 import axios from 'axios'
 import { useAuth } from '@/stores/auth'
 
-//const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
-const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api'
+//const API_BASE_URL = import.meta.env.VITE_API_URL || '/api'
+
+
 
 // Instancia de Axios configurada
 const apiClient = axios.create({
@@ -26,7 +28,9 @@ apiClient.interceptors.request.use(
     if (state.isImpersonating && state.user?.tenantId) {
       config.headers['X-Tenant-ID'] = state.user.tenantId
     }
-    
+    if (config.url && !config.url.endsWith('/')) {
+      config.url = config.url + '/'
+    }    
     return config
   },
   (error) => {

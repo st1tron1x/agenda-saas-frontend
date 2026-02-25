@@ -1,6 +1,5 @@
 <template>
   <v-container fluid class="pa-6">
-
     <!-- HEADER CON ACCIONES -->
     <v-card class="section-card pa-4 mb-4">
       <v-row align="center">
@@ -109,8 +108,7 @@
     </v-card>
 
     <!-- CALENDARIO -->
-    <v-card class="section-card calendar-container">
-      
+    <v-card class="section-card calendar-container">      
       <!-- VISTA DÍA -->
       <div v-if="viewMode === 'day'" class="calendar-day-view">
         <CalendarDayView
@@ -140,7 +138,6 @@
           @appointment-click="handleAppointmentClick"
         />
       </div>
-
     </v-card>
 
     <!-- MODAL DE CITA -->
@@ -150,7 +147,6 @@
       @save="handleSave"
       @cancel="handleCancel"
     />
-
   </v-container>
 </template>
 
@@ -359,24 +355,6 @@ function handleCancel(appointment) {
   
   showModal.value = false
 }
-
-function saveAppointment(data) {
-  const event = {
-    id: Date.now(),
-    title: 'Nueva cita',
-    start: data.start,
-    end: data.end,
-    status: data.status,
-    extendedProps: {
-      clientId: data.clientId,
-      serviceId: data.serviceId,
-      notes: data.notes,
-    },
-  }
-
-  events.value.push(event)
-}
-
 
 </script>
 

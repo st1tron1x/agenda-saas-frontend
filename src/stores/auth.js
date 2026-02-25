@@ -1,3 +1,4 @@
+// src/stores/auth.js
 import { reactive, computed, watch } from 'vue'
 import { ROLES } from '../constants/roles'
 import { ROLE_PERMISSIONS } from '@/config/role.permissions'
@@ -21,8 +22,7 @@ const isStaff = computed(() => state.user?.role === ROLES.STAFF)
 
 /**
  * Composable de autenticación centralizado
- * 
- * MOCK - En producción conectará con backend
+ * Conectado con backend Django REST Framework
  */
 export function useAuth() {
   /**
@@ -30,6 +30,8 @@ export function useAuth() {
    * @param {Object} userData - { id, name, email, role, tenantId, token, refreshToken }
    */
   function login(userData) {
+    console.log('🔐 useAuth.login llamado con:', userData)
+    
     state.isAuthenticated = true
     state.user = {
       id: userData.id,
@@ -40,17 +42,33 @@ export function useAuth() {
       token: userData.token || null,
       refreshToken: userData.refreshToken || null,
     }
+    
+    // ⭐ NUEVO: Guardar tokens en localStorage también (por separado para el interceptor)
+    if (userData.token) {
+      localStorage.setItem('access_token', userData.token)
+    }
+    if (userData.refreshToken) {
+      localStorage.setItem('refresh_token', userData.refreshToken)
+    }
+    
+    console.log('✅ Estado de auth actualizado:', state.user)
   }
 
   /**
    * Logout de usuario
    */
   function logout() {
+    console.log('🚪 Logout ejecutado')
+    
     state.isAuthenticated = false
     state.user = null
     state.originalUser = null
     state.isImpersonating = false
+    
+    // Limpiar localStorage
     localStorage.removeItem('auth')
+    localStorage.removeItem('access_token')
+    localStorage.removeItem('refresh_token')
   }
 
   /**
