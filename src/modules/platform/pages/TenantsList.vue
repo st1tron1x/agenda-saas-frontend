@@ -163,7 +163,7 @@
               size="48" 
               class="mr-3"
             >
-              <v-img :src="tenant.logo.src" />
+              <v-img :src="tenant.logo || '/default-logo.png'" />
             </v-avatar>
 
             <div class="flex-grow-1">
@@ -262,13 +262,28 @@ const statusOptions = [
   { title: 'Pausado', value: 'paused' },
 ]
 
+const safeTenants = computed(() => (Array.isArray(tenants.value) ? tenants.value : []))
+
+const normalizedTenants = computed(() => {
+  return safeTenants.value.map(tenant => ({
+    id: tenant.id,
+    name: tenant.business_name ?? tenant.name ?? '',
+    plan: tenant.plan?.name ?? tenant.plan ?? 'N/A',
+    active: tenant.status ? tenant.status === 'active' : !!tenant.active,
+    logo: tenant.logo ?? tenant.logo?.src ?? null,
+    subdomain: tenant.subdomain ?? '',
+    usersCount: tenant.users_count ?? tenant.usersCount ?? 0,
+    mrr: tenant.mrr ?? 0,
+  }))
+})
+
 const planOptions = computed(() => {
-  const plans = [...new Set(tenants.value.map(tenant => tenant.plan))]
+  const plans = [...new Set(normalizedTenants.value.map(tenant => tenant.plan))]
   return plans.map(plan => ({ title: plan, value: plan }))
 })
 
 const filteredTenants = computed(() => {
-  return tenants.value.filter(tenant => {
+  return normalizedTenants.value.filter(tenant => {
     const status = tenant.active ? 'active' : 'paused'
 
     const bySearch = !filters.value.search
@@ -283,10 +298,10 @@ const filteredTenants = computed(() => {
 })
 
 const stats = computed(() => {
-  const active = tenants.value.filter(tenant => tenant.active).length
-  const paused = tenants.value.length - active
+  const active = normalizedTenants.value.filter(tenant => tenant.active).length
+  const paused = normalizedTenants.value.length - active
 
-  const plansFrequency = tenants.value.reduce((acc, tenant) => {
+  const plansFrequency = normalizedTenants.value.reduce((acc, tenant) => {
     acc[tenant.plan] = (acc[tenant.plan] || 0) + 1
     return acc
   }, {})
@@ -295,15 +310,24 @@ const stats = computed(() => {
     .sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A'
 
   return {
-    total: tenants.value.length,
+    total: normalizedTenants.value.length,
     active,
     paused,
     topPlan,
   }
 })
 
-onMounted(async () => {
+/*onMounted(async () => {
   tenants.value = await getTenants()
+})*/
+onMounted(async () => {
+  const result = await getTenants()
+
+  if (result.success && Array.isArray(result.data)) {
+    tenants.value = result.data
+  } else {
+    tenants.value = []
+  }
 })
 
 const goToCreate = () => {

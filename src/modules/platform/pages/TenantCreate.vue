@@ -131,6 +131,21 @@
                 Define los colores que representarán al negocio en el sistema
               </p>
 
+              <!-- Logo del negocio -->
+              <v-file-input
+                v-model="form.logo"
+                label="Logo del negocio"
+                accept="image/*"
+                prepend-inner-icon="mdi-image"
+                show-size
+                clearable
+              ></v-file-input>
+
+              <!-- Vista previa del logo -->
+              <div v-if="form.logo" class="logo-preview mt-2">
+                <img :src="logoPreview" alt="Vista previa del logo" class="rounded" style="height: 80px;" />
+              </div>
+
               <!-- Primary Color -->
               <v-row>
                 <v-col cols="12" md="6">
@@ -465,7 +480,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useNotification } from '@/composables/useNotification'
 import { api } from '@/services/api'
@@ -489,6 +504,12 @@ const businessTypes = [
   'Micropigmentación',
   'Otro',
 ]
+
+const logoPreview = computed(() => {
+  if (!form.value.logo) return null
+  if (typeof form.value.logo === 'string') return form.value.logo // si ya viene del backend
+  return URL.createObjectURL(form.value.logo) // archivo cargado por input
+})
 
 // Color Presets
 const colorPresets = [
@@ -679,7 +700,7 @@ async function loadPlans() {
   }
 }
 
-async function createTenant() {
+/*async function createTenant() {
   const { valid } = await formRef.value.validate()
   if (!valid) return
 
@@ -720,10 +741,56 @@ async function createTenant() {
   } finally {
     saving.value = false
   }
-}
+}*/
+async function createTenant() {
+  const { valid } = await formRef.value.validate()
+  if (!valid) return
+  saving.value = true
+  try {
+    const payload = normalizeTenantPayload(form.value)
 
-function goBack() {
-  router.push({ name: 'TenantsList' })
+    // Crear FormData
+    const formData = new FormData()
+    for (const key in payload) {
+      if (payload[key] !== null && payload[key] !== undefined) {
+        if (typeof payload[key] === 'object') {
+          formData.append(key, JSON.stringify(payload[key]))
+        } else {
+          formData.append(key, payload[key])
+        }
+      }
+    }
+
+    // Agregar logo si existe
+    if (form.value.logo) {
+      formData.append('logo', form.value.logo)
+    }
+
+    const result = await api.post('/platform/tenants', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+
+    if (!result.success) {
+      throw new Error(getErrorMessage(result, 'Error al crear tenant'))
+    }
+
+    const tenantData = result.data || {}
+    const schemaName = tenantData.schema_name || tenantData.schema || 'pendiente'
+    const adminPassword = tenantData.admin_password
+
+    notify({
+      type: 'success',
+      message: adminPassword
+        ? `Tenant creado (${schemaName}). Contraseña temporal admin: ${adminPassword}`
+        : `Tenant creado (${schemaName}) y schema provisionado exitosamente`,
+    })
+
+    router.push({ name: 'TenantsList' })
+  } catch (error) {
+    notify({ type: 'error', message: error.message || 'Error al crear tenant' })
+  } finally {
+    saving.value = false
+  }
 }
 
 // Lifecycle
@@ -868,6 +935,13 @@ onMounted(() => {
   align-items: center;
   justify-content: center;
   margin-bottom: 12px;
+}
+
+.logo-preview img {
+  max-height: 80px;
+  border-radius: 12px;
+  object-fit: contain;
+  border: 1px solid #e5e7eb;
 }
 
 .business-name {

@@ -63,6 +63,7 @@ export function useNotification() {
   return {
     notifications,
     show,
+    notify: show, // alias: varios componentes usan notify({ type, message })
     remove,
     success,
     error,

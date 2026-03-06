@@ -1,3 +1,4 @@
+#agenda-saas-frontend/src/modules/platform/pages/tenantEdit.vue
 <template>
   <div class="tenant-edit pa-6">
     <div class="mb-8 d-flex justify-space-between align-center">
@@ -56,6 +57,8 @@
             <v-select
               v-model="form.plan_id"
               :items="planOptions"
+              item-title="name"
+              item-value="id"
               label="Plan"
               variant="outlined"
             />
@@ -63,7 +66,7 @@
 
           <v-col cols="12" md="6">
             <v-select
-              v-model="form.active"
+              v-model="form.status"
               :items="statusOptions"
               label="Estado"
               variant="outlined"
@@ -105,6 +108,17 @@
               variant="outlined"
             />
           </v-col>
+
+          <v-file-input
+                v-model="form.logo"
+                label="Logo del negocio"
+                accept="image/*"
+                prepend-inner-icon="mdi-image"
+                show-size
+                clearable
+              ></v-file-input>
+              <!-- Mostrar logo actual -->
+              
         </v-row>
 
         <div class="d-flex justify-end mt-2">
@@ -123,6 +137,7 @@ import { onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useNotification } from '@/composables/useNotification'
 import { getTenantById, updateTenant } from '@/services/tenant.service'
+import { api } from '@/services/api'
 
 const route = useRoute()
 const router = useRouter()
@@ -133,10 +148,34 @@ const formValid = ref(false)
 const saving = ref(false)
 const baseDomain = ref('miagenda.com')
 
-const planOptions = ['Trial', 'Pro', 'Pro Plus']
+//const planOptions = ['Trial', 'Pro', 'Pro Plus']
+const planOptions = ref([])
+
+async function loadPlans() {
+  try {
+    const response = await api.get('/platform/plans')
+
+    if (response.success && Array.isArray(response.data)) {
+      planOptions.value = response.data
+      return
+    }
+
+    planOptions.value = []
+  } catch (error) {
+    planOptions.value = []
+
+    notify({
+      type: 'error',
+      message: 'No se pudieron cargar los planes',
+    })
+  }
+}
+
 const statusOptions = [
-  { title: 'Activo', value: true },
-  { title: 'Pausado', value: false },
+  { title: 'Activo', value: 'active' },
+  { title: 'En prueba', value: 'trial' },
+  { title: 'Suspendido', value: 'suspended' },
+  { title: 'Cancelado', value: 'cancelled' },
 ]
 
 const form = ref({
@@ -145,7 +184,7 @@ const form = ref({
   owner_name: '',
   owner_email: '',
   owner_phone: '',
-  plan_id: 'Pro',
+  plan_id: 'null',
   business_type: '',
   trial_end_date: '',
   address: '',
@@ -173,18 +212,41 @@ async function loadTenant() {
   try {
     const tenantId = route.params.id
     const tenant = await getTenantById(tenantId)
+
+    
+
     form.value = {
-      ...form.value,
-      ...tenant,
+      business_name: tenant.business_name || '',
+      subdomain: tenant.subdomain || '',
+      owner_name: tenant.owner_name || '',
+      owner_email: tenant.owner_email || '',
+      owner_phone: tenant.owner_phone || '',
+
+      // 👇 MUY IMPORTANTE
+      plan_id: tenant.plan?.id || null,
+
+      business_type: tenant.business_type || '',
+      trial_end_date: tenant.trial_end_date || '',
+      address: tenant.address || '',
+
+      logo: tenant.logo || null,
+
+      // Convertimos status string → boolean
+      active: tenant.status === 'active',
+
       brand_colors: {
-        ...form.value.brand_colors,
-        ...tenant.brand_colors,
+        primary: tenant.brand_colors?.primary || '#6366F1',
+        secondary: tenant.brand_colors?.secondary || '#EC4899',
       },
+
       settings: {
-        ...form.value.settings,
-        ...tenant.settings,
+        max_users: tenant.settings?.max_users ?? null,
+        max_appointments: tenant.settings?.max_appointments ?? null,
+        custom_domain_enabled: tenant.settings?.custom_domain_enabled ?? false,
+        api_access_enabled: tenant.settings?.api_access_enabled ?? false,
       },
     }
+
   } catch (error) {
     notify({
       type: 'error',
@@ -201,17 +263,45 @@ async function saveTenant() {
   saving.value = true
 
   try {
-    await updateTenant(route.params.id, form.value)
-    notify({
-      type: 'success',
-      message: 'Tenant actualizado correctamente',
-    })
+    const formData = new FormData()
+
+    // Campos básicos
+    formData.append('business_name', form.value.business_name)
+    formData.append('subdomain', form.value.subdomain)
+    formData.append('owner_name', form.value.owner_name)
+    formData.append('owner_email', form.value.owner_email)
+    formData.append('owner_phone', form.value.owner_phone)
+    formData.append('plan_id', form.value.plan_id)
+    formData.append('status', form.value.active ? 'active' : 'suspended')
+    formData.append('business_type', form.value.business_type)
+    formData.append('trial_end_date', form.value.trial_end_date)
+    formData.append('address', form.value.address)
+
+    // Brand colors
+    formData.append('brand_colors', JSON.stringify(form.value.brand_colors))
+
+    // Settings
+    formData.append('settings', JSON.stringify(form.value.settings))
+
+    // Logo solo si es un archivo nuevo
+    if (form.value.logo instanceof File) {
+      formData.append('logo', form.value.logo)
+    }
+
+    // Llamada PUT con multipart/form-data
+    const response = await api.put(
+      `platform/tenants/${route.params.id}`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    )
+
+    if (!response.success) throw new Error(response.error)
+
+    notify({ type: 'success', message: 'Tenant actualizado correctamente' })
     router.push({ name: 'TenantsList' })
+
   } catch (error) {
-    notify({
-      type: 'error',
-      message: error.message || 'No se pudo actualizar el tenant',
-    })
+    notify({ type: 'error', message: error.message || 'No se pudo actualizar el tenant' })
   } finally {
     saving.value = false
   }
@@ -221,5 +311,8 @@ function goBack() {
   router.push({ name: 'TenantsList' })
 }
 
-onMounted(loadTenant)
+onMounted(async () => {
+  await loadPlans()
+  await loadTenant()
+})
 </script>

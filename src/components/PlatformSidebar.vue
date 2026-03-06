@@ -16,7 +16,7 @@
         class="branding-link"
       >
         <v-img
-          :src="tenant.logo?.src"
+          :src="tenant.logo?.src || tenant.logo"
           max-width="140"
           class="mx-auto mb-2"
           contain

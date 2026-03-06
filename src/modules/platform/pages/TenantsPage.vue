@@ -564,6 +564,16 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useNotification } from '@/composables/useNotification'
+import {
+  getTenants,
+  getTenantById,
+  createTenant,
+  updateTenant,
+  suspendTenant as apiSuspendTenant,
+  activateTenant as apiActivateTenant,
+  deleteTenant as apiDeleteTenant,
+} from '@/services/tenant.service'
+import { getPlans } from '@/services/plans.service'
 
 const { notify } = useNotification()
 
@@ -616,6 +626,7 @@ const form = ref({
     custom_domain_enabled: false,
     api_access_enabled: false,
   },
+  brand_colors: { primary: '#6366F1', secondary: '#EC4899' },
 })
 
 // Table headers
@@ -648,7 +659,7 @@ const rules = {
 }
 
 // Computed
-const filteredTenants = computed(() => {
+/*const filteredTenants = computed(() => {
   let result = tenants.value
 
   if (filters.value.search) {
@@ -671,63 +682,51 @@ const filteredTenants = computed(() => {
 
   return result
 })
+*/
+const filteredTenants = computed(() => {
+  if (!Array.isArray(tenants.value)) return []
+
+  let result = [...tenants.value]
+
+  if (filters.value.search) {
+    const search = filters.value.search.toLowerCase()
+    result = result.filter(
+      t =>
+        t.business_name?.toLowerCase().includes(search) ||
+        t.subdomain?.toLowerCase().includes(search) ||
+        t.owner_email?.toLowerCase().includes(search)
+    )
+  }
+
+  if (filters.value.status) {
+    result = result.filter(t => t.status === filters.value.status)
+  }
+
+  if (filters.value.plan) {
+    result = result.filter(t => t.plan?.id === filters.value.plan)
+  }
+
+  return result
+})
 
 // Methods
 async function loadTenants() {
   loading.value = true
   try {
-    // TODO: Replace with API call
-    // const response = await api.get('/platform/tenants')
-    // tenants.value = response.data
-    
-    // Mock data
-    tenants.value = [
-      {
-        id: 1,
-        business_name: 'Belleza Total',
-        subdomain: 'belleza-total',
-        status: 'active',
-        owner_name: 'María González',
-        owner_email: 'maria@belleza-total.com',
-        owner_phone: '+57 300 123 4567',
-        plan: { id: 2, name: 'Profesional' },
-        users_count: 5,
-        created_at: '2024-01-15T10:00:00Z',
-        address: 'Calle 123 #45-67, Bogotá',
-        stats: {
-          users: 5,
-          clients: 128,
-          appointments: 45,
-          services: 12,
-        },
-      },
-      {
-        id: 2,
-        business_name: 'Estética Premium',
-        subdomain: 'estetica-premium',
-        status: 'trial',
-        owner_name: 'Laura Martínez',
-        owner_email: 'laura@estetica-premium.com',
-        owner_phone: '+57 310 987 6543',
-        plan: { id: 1, name: 'Básico' },
-        users_count: 2,
-        created_at: '2024-02-01T14:30:00Z',
-        address: 'Carrera 7 #80-45, Bogotá',
-        stats: {
-          users: 2,
-          clients: 45,
-          appointments: 18,
-          services: 8,
-        },
-      },
-    ]
-
+    const params = {
+      search: filters.value.search || undefined,
+      status: filters.value.status || undefined,
+      plan: filters.value.plan || undefined,
+    }
+    const result = await getTenants(params)
+    if (result.success && Array.isArray(result.data)) {
+      tenants.value = result.data
+    } else {
+      tenants.value = []
+    }
     calculateStats()
   } catch (error) {
-    notify({
-      type: 'error',
-      message: 'Error al cargar tenants',
-    })
+    notify({ type: 'error', message: 'Error al cargar tenants' })
   } finally {
     loading.value = false
   }
@@ -735,21 +734,14 @@ async function loadTenants() {
 
 async function loadPlans() {
   try {
-    // TODO: Replace with API call
-    // const response = await api.get('/platform/plans')
-    // availablePlans.value = response.data
-    
-    // Mock data
-    availablePlans.value = [
-      { id: 1, name: 'Básico' },
-      { id: 2, name: 'Profesional' },
-      { id: 3, name: 'Empresarial' },
-    ]
+    const result = await getPlans()
+    if (result.success && Array.isArray(result.data)) {
+      availablePlans.value = result.data
+    } else {
+      availablePlans.value = []
+    }
   } catch (error) {
-    notify({
-      type: 'error',
-      message: 'Error al cargar planes',
-    })
+    notify({ type: 'error', message: 'Error al cargar planes' })
   }
 }
 
@@ -770,20 +762,40 @@ function openCreateDialog() {
   resetForm()
 }
 
-function editTenant(tenant) {
-  dialog.value = {
-    show: true,
-    mode: 'edit',
-  }
-  form.value = {
-    ...tenant,
-    plan_id: tenant.plan.id,
-    settings: tenant.settings || {
-      max_users: null,
-      max_appointments: null,
-      custom_domain_enabled: false,
-      api_access_enabled: false,
-    },
+async function editTenant(tenant) {
+  dialog.value = { show: true, mode: 'edit' }
+  try {
+    const result = await getTenantById(tenant.id)
+    const t = result.success ? result.data : tenant
+    form.value = {
+      id: t.id,
+      business_name: t.business_name,
+      subdomain: t.subdomain,
+      owner_name: t.owner_name,
+      owner_email: t.owner_email,
+      owner_phone: t.owner_phone || '',
+      plan_id: t.plan?.id ?? t.plan_id,
+      status: t.status || 'active',
+      trial_end_date: t.trial_end_date || '',
+      address: t.address || '',
+      settings: t.settings || {
+        max_users: null,
+        max_appointments: null,
+        custom_domain_enabled: false,
+        api_access_enabled: false,
+      },
+    }
+  } catch {
+    form.value = {
+      ...tenant,
+      plan_id: tenant.plan?.id,
+      settings: tenant.settings || {
+        max_users: null,
+        max_appointments: null,
+        custom_domain_enabled: false,
+        api_access_enabled: false,
+      },
+    }
   }
 }
 
@@ -801,28 +813,18 @@ async function saveTenant() {
   saving.value = true
   try {
     if (dialog.value.mode === 'create') {
-      // TODO: Replace with API call
-      // await api.post('/platform/tenants', form.value)
-      notify({
-        type: 'success',
-        message: 'Tenant creado exitosamente',
-      })
+      const result = await createTenant(form.value)
+      if (!result.success) throw new Error(result.error || 'Error al crear tenant')
+      notify({ type: 'success', message: 'Tenant creado exitosamente' })
     } else {
-      // TODO: Replace with API call
-      // await api.put(`/platform/tenants/${form.value.id}`, form.value)
-      notify({
-        type: 'success',
-        message: 'Tenant actualizado exitosamente',
-      })
+      const result = await updateTenant(form.value.id, form.value)
+      if (!result.success) throw new Error(result.error || 'Error al actualizar tenant')
+      notify({ type: 'success', message: 'Tenant actualizado exitosamente' })
     }
-    
     closeDialog()
     await loadTenants()
   } catch (error) {
-    notify({
-      type: 'error',
-      message: 'Error al guardar tenant',
-    })
+    notify({ type: 'error', message: error.message || 'Error al guardar tenant' })
   } finally {
     saving.value = false
   }
@@ -830,58 +832,36 @@ async function saveTenant() {
 
 async function suspendTenant(tenant) {
   if (!confirm(`¿Seguro que deseas suspender a ${tenant.business_name}?`)) return
-
   try {
-    // TODO: Replace with API call
-    // await api.post(`/platform/tenants/${tenant.id}/suspend`)
-    notify({
-      type: 'success',
-      message: 'Tenant suspendido',
-    })
+    const result = await apiSuspendTenant(tenant.id)
+    if (!result.success) throw new Error(result.error)
+    notify({ type: 'success', message: 'Tenant suspendido' })
     await loadTenants()
-  } catch (error) {
-    notify({
-      type: 'error',
-      message: 'Error al suspender tenant',
-    })
+  } catch {
+    notify({ type: 'error', message: 'Error al suspender tenant' })
   }
 }
 
 async function activateTenant(tenant) {
   try {
-    // TODO: Replace with API call
-    // await api.post(`/platform/tenants/${tenant.id}/activate`)
-    notify({
-      type: 'success',
-      message: 'Tenant activado',
-    })
+    const result = await apiActivateTenant(tenant.id)
+    if (!result.success) throw new Error(result.error)
+    notify({ type: 'success', message: 'Tenant activado' })
     await loadTenants()
-  } catch (error) {
-    notify({
-      type: 'error',
-      message: 'Error al activar tenant',
-    })
+  } catch {
+    notify({ type: 'error', message: 'Error al activar tenant' })
   }
 }
 
 async function deleteTenant(tenant) {
-  if (!confirm(`¿Seguro que deseas ELIMINAR a ${tenant.business_name}? Esta acción no se puede deshacer.`)) {
-    return
-  }
-
+  if (!confirm(`¿Seguro que deseas ELIMINAR a ${tenant.business_name}? Esta acción no se puede deshacer.`)) return
   try {
-    // TODO: Replace with API call
-    // await api.delete(`/platform/tenants/${tenant.id}`)
-    notify({
-      type: 'success',
-      message: 'Tenant eliminado',
-    })
+    const result = await apiDeleteTenant(tenant.id)
+    if (!result.success) throw new Error(result.error)
+    notify({ type: 'success', message: 'Tenant eliminado' })
     await loadTenants()
-  } catch (error) {
-    notify({
-      type: 'error',
-      message: 'Error al eliminar tenant',
-    })
+  } catch {
+    notify({ type: 'error', message: 'Error al eliminar tenant' })
   }
 }
 
@@ -907,16 +887,14 @@ function resetForm() {
       custom_domain_enabled: false,
       api_access_enabled: false,
     },
+    brand_colors: { primary: '#6366F1', secondary: '#EC4899' },
   }
   formRef.value?.resetValidation()
 }
 
 function clearFilters() {
-  filters.value = {
-    search: '',
-    status: null,
-    plan: null,
-  }
+  filters.value = { search: '', status: null, plan: null }
+  loadTenants()
 }
 
 function getStatusColor(status) {
